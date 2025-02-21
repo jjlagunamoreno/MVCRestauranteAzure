@@ -12,8 +12,8 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        var categorias = _repo.GetTodasLasCategorias(); // Devuelve List<string>
-        var platos = _repo.GetPlatos(); // Devuelve List<Carta>
+        var categorias = _repo.GetTodasLasCategorias();
+        var platos = _repo.GetPlatos();
 
         var model = new Dictionary<string, List<Carta>>();
 
@@ -22,6 +22,6 @@ public class HomeController : Controller
             model[categoria] = platos.Where(p => p.TipoPlato == categoria).ToList();
         }
 
-        return View(model); // Pasamos el modelo a la vista
+        return View(model);
     }
 }

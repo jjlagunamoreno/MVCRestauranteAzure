@@ -6,25 +6,25 @@ namespace MVCRestaurante.Models
     public class Carta
     {
         [Key]
-        [Column("ID_PLATO")] // Mapea con la base de datos
+        [Column("ID_PLATO")]
         public int IdPlato { get; set; }
 
         [Required]
-        [Column("NOMBRE")] // Mapea con la base de datos
+        [Column("NOMBRE")]
         public string Nombre { get; set; }
 
-        [Column("DESCRIPCION")] // Mapea con la base de datos
+        [Column("DESCRIPCION")]
         public string Descripcion { get; set; }
 
         [Required]
-        [Column("PRECIO")] // Mapea con la base de datos
+        [Column("PRECIO")]
         public decimal Precio { get; set; }
 
         [Required]
-        [Column("TIPO_PLATO")] // 🔹 Mapeo correcto de la columna
+        [Column("TIPO_PLATO")]
         public string TipoPlato { get; set; }
 
-        [Column("IMAGEN")] // Mapea con la base de datos
+        [Column("IMAGEN")]
         public string Imagen { get; set; }
     }
 }
