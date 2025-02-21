@@ -2,56 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MVCRestaurante</title>
-    <script type="importmap"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title> MVCRestaurante</title>
+
+    <!-- Agregar Favicon -->
+    <link rel="icon" type="image/png" href="~/images/favicon.png" />
+
+    <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MVCRestaurante.styles.css" asp-append-version="true" />
-    @* LIBRERÍAS DEPENDIENTES DE INTERNET *@
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/responsive.css" />
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+
+    <!-- Nice Select -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
 
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/restaurante_ico.png" alt="Logo Restaurante" width="50%" height="50%" />
+<body class="sub_page">
+
+    <!-- HEADER -->
+    <header class="header_section" style="background-color:black;">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark custom_nav-container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <span>MVCRestaurante</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Menu">Menú</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Reservas">Reservas</a>
+                        </li>
+                        <div class="user_option">
+                            <a href="" class="user_link">
+                                <i class="fa fa-user" aria-hidden="true"></i>
+                            </a>
+                            <a href="" class="order_online">
+                                Domicilio
+                            </a>
+                        </div>
                     </ul>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
     </header>
+
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    @* <footer class="border-top footer text-muted">
+    <!-- FOOTER -->
+    <footer class="footer_section">
         <div class="container">
-            &copy; 2025 - MVCRestaurante - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-md-4 footer-col">
+                    <div class="footer_contact">
+                        <h4>
+                            Contacto
+                        </h4>
+                        <div class="contact_link_box">
+                            <a href="">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                <span>
+                                    Tajamar
+                                </span>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-phone" aria-hidden="true"></i>
+                                <span>
+                                    +34 123 456 789
+                                </span>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-envelope" aria-hidden="true"></i>
+                                <span>
+                                    jaimejesus.laguna@tajamar365.com
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-col">
+                    <div class="footer_detail">
+                        <a href="" class="footer-logo">
+                            MVCRestaurante
+                        </a>
+                        <p>
+                            Síguenos en nuestras redes sociales!!
+                        </p>
+                        <div class="footer_social">
+                            <a href="https://facebook.com">
+                                <i class="fa-brands fa-facebook"></i>
+                            </a>
+                            <a href="https://twitter.com">
+                                <i class="fa-brands fa-twitter"></i>
+                            </a>
+                            <a href="https://linkedin.com">
+                                <i class="fa-brands fa-linkedin"></i>
+                            </a>
+                            <a href="https://instagram.com">
+                                <i class="fa-brands fa-instagram"></i>
+                            </a>
+                            <a href="https://pinterest.com">
+                                <i class="fa-brands fa-pinterest"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-col">
+                    <h4>
+                        Horario
+                    </h4>
+                    <p>
+                        Todos los días
+                    </p>
+                    <p>
+                        10.00 Am -10.00 Pm
+                    </p>
+                </div>
+            </div>
+            <div class="footer-info">
+                <p>
+                    &copy; <span id="displayYear"></span> All Rights Reserved By
+                    <a href="https://html.design/">JJ MASTER</a><br><br>
+                    &copy; <span id="displayYear"></span> Distributed By
+                    <a href="https://themewagon.com/" target="_blank">MVCRestaurante</a>
+                </p>
+            </div>
         </div>
-    </footer> *@
+    </footer>
+
+    <!-- JavaScript -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/custom.js"></script>
+    <script src="https://unpkg.com/isotope-layout@3.0.4/dist/isotope.pkgd.min.js"></script>
+    <script src="~/js/menu-filter.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
