@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model Dictionary<string, List<Carta>>
+
+<h2>Menú del Restaurante</h2>
+
+@foreach (var categoria in Model.Keys)
+{
+    <h3>@categoria</h3>
+    <div class="row">
+        @foreach (var plato in Model[categoria])
+        {
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="/images/@plato.Imagen" class="card-img-top" alt="@plato.Nombre">
+                    <div class="card-body">
+                        <h5 class="card-title">@plato.Nombre</h5>
+                        <p class="card-text">@plato.Descripcion</p>
+                        <p class="card-text"><strong>Precio: @plato.Precio €</strong></p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
