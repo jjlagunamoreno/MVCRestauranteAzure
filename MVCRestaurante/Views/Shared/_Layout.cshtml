@@ -27,7 +27,7 @@
 <body class="sub_page">
 
     <!-- HEADER -->
-    <header class="header_section" style="background-color:black;">
+    <header class="header_section fixed-top" style="background-color:black; ">
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-dark custom_nav-container">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
@@ -54,8 +54,11 @@
                             <a asp-controller="Login" asp-action="Index" class="user_link">
                                 <i class="fa fa-user" aria-hidden="true"></i>
                             </a>
-                            <a href="" class="order_online">
-                                Domicilio
+                            <a asp-controller="Carrito" asp-action="Index" class="order_online position-relative">
+                                <i class="fa fa-shopping-cart"></i> Pedido
+                                <span id="pedidoCount" class="badge badge-pill position-absolute top-0 start-100 translate-middle pedido-badge">
+                                    0
+                                </span>
                             </a>
                         </div>
                     </ul>
@@ -150,6 +153,9 @@
             </div>
         </div>
     </footer>
+
+    @* Mis scripts *@
+    <script src="~/js/cart.js"></script>
 
     <!-- JavaScript -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

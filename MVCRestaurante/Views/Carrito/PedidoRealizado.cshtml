@@ -1,0 +1,11 @@
+﻿@model MVCRestaurante.Models.VwPedidoActivo
+
+<h2>✅ Pedido Realizado</h2>
+<p>Tu pedido con ID <strong>@Model.IdPedido</strong> ha sido registrado con éxito.</p>
+<p>Cliente: <strong>@Model.Nombre</strong></p>
+<p>Tipo de pedido: <strong>@Model.TipoPedido</strong></p>
+<p>Estado: <strong>@Model.Estado</strong></p>
+<p>Total pagado: <strong>€ @Model.PrecioTotal</strong></p>
+
+<a asp-action="PedidosActivos" class="btn btn-primary">📋 Ver Pedidos Activos</a>
+<a asp-action="Index" class="btn btn-secondary">⬅ Volver al Menú</a>

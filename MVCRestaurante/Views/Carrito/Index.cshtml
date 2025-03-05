@@ -1,0 +1,126 @@
+﻿@model List<MVCRestaurante.Models.DetallePedido>
+
+<div style="padding-top: 15%; max-width: 900px; margin: auto;">
+
+    <h2 class="text-center">🛒 Pedido</h2>
+
+    <div id="empty-cart-message" class="text-center mt-4" style="display: @(Model.Any() ? "none" : "block");">
+        <p>No hay productos en el carrito.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary" style="margin-bottom:15%">
+            🍽️ Ir a la Carta
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div id="cart-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Total</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row-@item.IdPlato">
+                            <td>@item.Plato.Nombre</td>
+                            <td>
+                                <input type="number" class="form-control quantity-input" data-id="@item.IdPlato"
+                                       value="@item.Cantidad" min="1" style="width: 80px; display: inline-block;" />
+                            </td>
+                            <td>€ @item.Precio</td>
+                            <td class="total-price">€ @(item.Precio * item.Cantidad)</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm remove-btn" data-id="@item.IdPlato">
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Total Pedido:</td>
+                        <td id="total-cart-price" class="fw-bold">€ @Model.Sum(p => p.Precio * p.Cantidad)</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <form id="order-form" asp-action="ConfirmarPedido" method="post"
+                  style="margin-top: 40px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                <h3>Datos del Pedido</h3>
+                <div class="mb-3">
+                    <label>Teléfono:</label>
+                    <input type="text" name="telefono" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label>Nombre:</label>
+                    <input type="text" name="nombre" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label>Tipo de Pedido:</label>
+                    <select name="tipoPedido" class="form-control" onchange="mostrarDireccion(this)">
+                        <option value="RECOGER">Recoger</option>
+                        <option value="DOMICILIO">Domicilio</option>
+                    </select>
+                </div>
+                <div id="direccionDiv" class="mb-3 d-none">
+                    <label>Dirección:</label>
+                    <input type="text" name="direccion" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-success">Confirmar Pedido</button>
+            </form>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Actualizar cantidad automáticamente
+        document.querySelectorAll(".quantity-input").forEach(input => {
+            input.addEventListener("change", function () {
+                let id = this.getAttribute("data-id");
+                let cantidad = parseInt(this.value);
+                if (cantidad < 1) this.value = 1;
+
+                fetch(`/Carrito/ActualizarCantidad?id=${id}&cantidad=${cantidad}`, { method: "GET" })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("total-cart-price").innerText = `€ ${data.total}`;
+                        this.closest("tr").querySelector(".total-price").innerText = `€ ${data.subtotal}`;
+                    });
+            });
+        });
+
+        // Eliminar del carrito y actualizar la vista si queda vacío
+        document.querySelectorAll(".remove-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let id = this.getAttribute("data-id");
+
+                fetch(`/Carrito/Eliminar?id=${id}`, { method: "DELETE" })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("total-cart-price").innerText = `€ ${data.total}`;
+                        let row = document.getElementById("row-" + id);
+                        if (row) row.remove();
+
+                        // Si el carrito está vacío, mostrar mensaje y ocultar el contenido del carrito
+                        if (document.querySelectorAll("tbody tr").length === 0) {
+                            document.getElementById("cart-content").style.display = "none";
+                            document.getElementById("empty-cart-message").style.display = "block";
+                        }
+                    });
+            });
+        });
+    });
+
+    function mostrarDireccion(select) {
+        document.getElementById("direccionDiv").classList.toggle("d-none", select.value !== "DOMICILIO");
+    }
+</script>

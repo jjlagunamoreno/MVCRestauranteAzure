@@ -1,0 +1,38 @@
+﻿@model List<MVCRestaurante.Models.VwPedidoActivo>
+
+<h2>📌 Pedidos Activos</h2>
+
+@if (!Model.Any())
+{
+    <p>No hay pedidos activos.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pedido in Model)
+            {
+                <tr>
+                    <td>@pedido.IdPedido</td>
+                    <td>@pedido.Nombre</td>
+                    <td>@pedido.TipoPedido</td>
+                    <td>@pedido.Estado</td>
+                    <td>@pedido.FechaPedido.ToShortDateString()</td>
+                    <td>@pedido.HoraPedido</td>
+                    <td>€ @pedido.PrecioTotal</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
