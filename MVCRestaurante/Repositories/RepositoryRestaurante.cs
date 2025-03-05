@@ -5,6 +5,14 @@ public class RepositoryRestaurante : IRepositoryRestaurante
 {
     private readonly RestauranteContext _context;
 
+    public List<Destacado> GetDestacados()
+    {
+        return _context.Destacados
+            .Where(d => d.FechaFinal > DateTime.Now)
+            .OrderBy(d => d.FechaInicio)
+            .ToList();
+    }
+
     public RepositoryRestaurante(RestauranteContext context)
     {
         _context = context;

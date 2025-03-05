@@ -2,6 +2,7 @@
 
 public interface IRepositoryRestaurante
 {
+    List<Destacado> GetDestacados();
     List<Carta> GetPlatosPorCategoria(string categoria);
     List<Carta> GetPlatos();
     List<string> GetTodasLasCategorias();

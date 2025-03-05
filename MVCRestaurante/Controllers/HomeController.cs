@@ -12,6 +12,7 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        var destacados = _repo.GetDestacados();
         var categorias = _repo.GetTodasLasCategorias();
         var platos = _repo.GetPlatos();
 
@@ -22,6 +23,9 @@ public class HomeController : Controller
             model[categoria] = platos.Where(p => p.TipoPlato == categoria).ToList();
         }
 
+        ViewBag.Destacados = destacados;
         return View(model);
     }
+
+
 }

@@ -1,10 +1,14 @@
-/* Fuente moderna */
+/* ==============================
+   Estilos Generales 
+   ============================== */
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f8f9fa;
 }
 
-/* Contenedor de categoría con fondo gris */
+/* ==============================
+   Contenedores y Categorías
+   ============================== */
 .categoria-container {
     background: #e9ecef;
     border-radius: 12px;
@@ -12,19 +16,24 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* Título de la categoría */
+/* Título de la Categoría */
 .categoria-titulo {
     font-size: 24px;
     font-weight: bold;
     text-align: center;
     border-bottom: 3px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
 }
 
-/* Tarjetas de los platos */
+/* ==============================
+   Tarjetas de Platos
+   ============================== */
 .card {
     transition: all 0.3s ease-in-out;
     border-radius: 10px;
     overflow: hidden;
+    position: relative;
 }
 
     .card:hover {
@@ -32,7 +41,7 @@ body {
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
 
-/* Imágenes */
+/* Imágenes dentro de las tarjetas */
 .card-img-top {
     height: 200px;
     object-fit: cover;
@@ -43,18 +52,7 @@ body {
     transform: scale(1.05);
 }
 
-/* Botón moderno */
-.btn-primary {
-    border-radius: 30px;
-    transition: all 0.3s ease-in-out;
-}
-
-    .btn-primary:hover {
-        background-color: #6610f2;
-        color: white;
-    }
-
-/* Badge de precio */
+/* Badge de Precio */
 .precio-badge {
     position: absolute;
     top: 10px;
@@ -66,13 +64,30 @@ body {
     border-radius: 5px;
 }
 
-/* Ajustes del Carrusel */
+/* ==============================
+   Botón Moderno
+   ============================== */
+.btn-primary {
+    border-radius: 30px;
+    transition: all 0.3s ease-in-out;
+}
+
+    .btn-primary:hover {
+        background-color: #6610f2;
+        color: white;
+    }
+
+/* ==============================
+   Carrusel de Destacados
+   ============================== */
 .carousel-inner {
     display: flex;
     align-items: center;
 }
 
-.carousel-control-prev, .carousel-control-next {
+/* Botones del Carrusel */
+.carousel-control-prev,
+.carousel-control-next {
     width: 5%;
 }
 
@@ -80,4 +95,29 @@ body {
 .carousel-control-next-icon {
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 50%;
+}
+
+/* ==============================
+   Destacados - Ajustes de Espaciado e Imágenes
+   ============================== */
+.featured_section {
+    padding-top: 20px !important;
+    margin-bottom: 30px; 
+}
+
+/* Contenedor de imágenes en Destacados */
+.img-container {
+    width: 100%;
+    height: 400px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Imágenes de Destacados */
+.destacado-img {
+    width: auto;
+    height: 100%; 
+    object-fit: cover; 
 }
