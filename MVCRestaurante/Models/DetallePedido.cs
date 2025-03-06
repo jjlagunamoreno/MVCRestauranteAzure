@@ -29,5 +29,6 @@ namespace MVCRestaurante.Models
 
         [ForeignKey("IdPlato")]
         public Carta Plato { get; set; }
+
     }
 }
