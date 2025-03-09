@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MVCRestaurante.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +10,9 @@ builder.Services.AddDbContext<RestauranteContext>(options =>
 // Configurar Caché
 builder.Services.AddMemoryCache();
 
-// Inyectar el repositorio
+// Inyectar repositorios
 builder.Services.AddScoped<IRepositoryRestaurante, RepositoryRestaurante>();
+builder.Services.AddScoped<RepositoryMenu>();
 
 // Agregar controladores con vistas
 builder.Services.AddControllersWithViews();

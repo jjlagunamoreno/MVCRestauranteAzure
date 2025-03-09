@@ -11,6 +11,7 @@ public class RestauranteContext : DbContext
 
     // Definir las tablas como DbSet
     public DbSet<Destacado> Destacados { get; set; }
+    public DbSet<Menu> Menu { get; set; }
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Administrador> Administradores { get; set; }
     public DbSet<Carta> Cartas { get; set; } 
@@ -21,6 +22,9 @@ public class RestauranteContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Menu>()
+                .HasKey(m => m.IdMenu);
+
         modelBuilder.Entity<VwPedidoActivo>().HasNoKey().ToView("vw_PedidosActivos");
 
         modelBuilder.Entity<Carta>().ToTable("CARTA");
