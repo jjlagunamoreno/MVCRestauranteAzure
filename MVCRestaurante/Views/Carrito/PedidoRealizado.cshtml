@@ -1,11 +1,40 @@
 ﻿@model MVCRestaurante.Models.VwPedidoActivo
 
-<h2>✅ Pedido Realizado</h2>
-<p>Tu pedido con ID <strong>@Model.IdPedido</strong> ha sido registrado con éxito.</p>
-<p>Cliente: <strong>@Model.Nombre</strong></p>
-<p>Tipo de pedido: <strong>@Model.TipoPedido</strong></p>
-<p>Estado: <strong>@Model.Estado</strong></p>
-<p>Total pagado: <strong>€ @Model.PrecioTotal</strong></p>
+<!-- *** CONTENEDOR PRINCIPAL PARA SIMULAR UN TICKET DE COMPRA *** -->
+<div style="padding-top: 150px; padding-bottom: 150px; display: flex; justify-content: center;">
+    <div style="
+         background-color: #f9f9f9;
+         border: 2px dashed #ccc;
+         border-radius: 10px;
+         padding: 20px;
+         text-align: center;
+         max-width: 400px;">
 
-<a asp-action="PedidosActivos" class="btn btn-primary">📋 Ver Pedidos Activos</a>
-<a asp-action="Index" class="btn btn-secondary">⬅ Volver al Menú</a>
+        <h2>Pedido Realizado</h2>
+
+        <p>
+            Tu pedido con ID <strong>@Model.IdPedido</strong> ha sido registrado con éxito.
+        </p>
+        <p>
+            Cliente: <strong>@Model.Nombre</strong>
+        </p>
+        <p>
+            Tipo de pedido: <strong>@Model.TipoPedido</strong>
+        </p>
+        <p>
+            Estado: <strong>@Model.Estado</strong>
+        </p>
+        <p>
+            Total pagado: <strong>€ @Model.PrecioTotal</strong>
+        </p>
+
+        <div style="margin-top: 20px;">
+            <a asp-action="PedidosActivos" class="btn btn-primary" style="margin-right: 10px;">
+                📋 Ver Pedidos Activos
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                ⬅ Volver al Menú
+            </a>
+        </div>
+    </div>
+</div>

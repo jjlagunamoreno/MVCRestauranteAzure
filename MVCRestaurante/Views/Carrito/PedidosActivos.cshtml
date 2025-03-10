@@ -1,38 +1,112 @@
 ﻿@model List<MVCRestaurante.Models.VwPedidoActivo>
 
-<h2>📌 Pedidos Activos</h2>
+<div class="container" style="padding-top: 150px; padding-bottom: 150px;">
+    <h2 class="mb-4 text-center">📌 Pedidos Activos</h2>
 
-@if (!Model.Any())
-{
-    <p>No hay pedidos activos.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID Pedido</th>
-                <th>Cliente</th>
-                <th>Tipo</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var pedido in Model)
-            {
-                <tr>
-                    <td>@pedido.IdPedido</td>
-                    <td>@pedido.Nombre</td>
-                    <td>@pedido.TipoPedido</td>
-                    <td>@pedido.Estado</td>
-                    <td>@pedido.FechaPedido.ToShortDateString()</td>
-                    <td>@pedido.HoraPedido</td>
-                    <td>€ @pedido.PrecioTotal</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    @if (!Model.Any())
+    {
+        <p class="text-center">No hay pedidos activos.</p>
+    }
+    else
+    {
+        <!-- AGRUPAMOS PEDIDOS POR FECHA Y ORDENAMOS DESCENDENTE (LOS MÁS RECIENTES PRIMERO) -->
+        @foreach (var group in Model
+       .GroupBy(p => p.FechaPedido.Date)
+       .OrderByDescending(g => g.Key))
+        {
+            <div class="mt-4 mb-2">
+                <h4 style="font-weight: bold;">
+                    @group.Key.ToShortDateString()
+                </h4>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID Pedido (Teléfono)</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Hora</th>
+                            <th>Total</th>
+                            <th>Completar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pedido in group)
+                        {
+                            <!-- SI EL PEDIDO ESTÁ ENTREGADO, SE RESALTA EN VERDE -->
+                            <tr style="@(pedido.Estado == "ENTREGADO" ? "background-color: #d4edda;" : "")">
+                                <!-- MOSTRAMOS EL ID Y EL TELÉFONO DEL CLIENTE -->
+                                <td>
+                                    <strong>@pedido.IdPedido</strong>
+                                    <span style="margin-left: 8px;">
+                                        (tel: <strong>@pedido.Telefono</strong>)
+                                    </span>
+                                </td>
+
+                                <!-- MOSTRAMOS EL NOMBRE DEL CLIENTE -->
+                                <td>@pedido.Nombre</td>
+
+                                <!-- COLORES SEGÚN TIPO DE PEDIDO -->
+                                <td>
+                                    @if (pedido.TipoPedido == "DOMICILIO")
+                                    {
+                                        <span style="background-color: #add8e6; border-radius: 5px; padding: 5px; color: #000;">
+                                            @pedido.TipoPedido
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span style="background-color: #c7ffe5; border-radius: 5px; padding: 5px; color: #000;">
+                                            @pedido.TipoPedido
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- COLORES SEGÚN ESTADO -->
+                                <td>
+                                    @if (pedido.Estado == "PENDIENTE")
+                                    {
+                                        <div style="background-color: #ffbe33; border-radius: 8px; display: inline-block; padding: 5px; color: #000;">
+                                            @pedido.Estado
+                                        </div>
+                                    }
+                                    else if (pedido.Estado == "CANCELADO")
+                                    {
+                                        <div style="background-color: red; border-radius: 8px; display: inline-block; padding: 5px; color: #fff;">
+                                            @pedido.Estado
+                                        </div>
+                                    }
+                                    else if (pedido.Estado == "ENTREGADO")
+                                    {
+                                        <div style="background-color: green; border-radius: 8px; display: inline-block; padding: 5px; color: #fff;">
+                                            @pedido.Estado
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div style="background-color: #ccc; border-radius: 8px; display: inline-block; padding: 5px; color: #000;">
+                                            @pedido.Estado
+                                        </div>
+                                    }
+                                </td>
+
+                                <!-- HORA -->
+                                <td>@pedido.HoraPedido.ToString(@"hh\:mm\:ss")</td>
+
+                                <td>€ @pedido.PrecioTotal</td>
+
+                                <!-- CHECKBOX PARA COMPLETAR -->
+                                <td>
+                                    <input type="checkbox" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>

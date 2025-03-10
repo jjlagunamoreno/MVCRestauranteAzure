@@ -1,29 +1,33 @@
 ﻿@{
+    // *** TÍTULO DE LA VISTA
     ViewData["Title"] = "Inicio - MVCRestaurante";
 }
 
+// *** MODELO PRINCIPAL (DICCIONARIO CATEGORÍA -> LISTA CARTA)
 @model Dictionary<string, List<Carta>>
+// *** IMPORT MODELS
 @using MVCRestaurante.Models
 
 @{
+    // *** OBTENEMOS LA LISTA DE DESTACADOS DESDE ViewBag
     List<Destacado> destacados = ViewBag.Destacados;
 }
 
-<!-- Sección de Destacados (Carousel) -->
+<!-- *** SECCIÓN DE DESTACADOS (CAROUSEL) *** -->
 <section class="featured_section pt-3">
-    <!-- Reducimos el padding-top con pt-3 -->
     <div class="container">
-
         @if (destacados != null && destacados.Count > 0)
         {
             <div id="carouselDestacados" class="carousel slide destacado-carousel" data-bs-ride="carousel" style="padding-top: 100px;">
                 <div class="carousel-indicators">
                     @for (int i = 0; i < destacados.Count; i++)
                     {
-                        <button type="button" data-bs-target="#carouselDestacados"
+                        <button type="button"
+                                data-bs-target="#carouselDestacados"
                                 data-bs-slide-to="@i"
                                 class="@(i == 0 ? "active" : "")"
-                                aria-label="Slide @(i + 1)"></button>
+                                aria-label="Slide @(i + 1)">
+                        </button>
                     }
                 </div>
 
@@ -43,11 +47,17 @@
                     }
                 </div>
 
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestacados" data-bs-slide="prev">
+                <button class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#carouselDestacados"
+                        data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Previous</span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselDestacados" data-bs-slide="next">
+                <button class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#carouselDestacados"
+                        data-bs-slide="next">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Next</span>
                 </button>
@@ -61,13 +71,14 @@
 </section>
 
 
-<!-- Sección del Menú -->
+<!-- *** SECCIÓN DEL MENÚ *** -->
 <section class="food_section layout_padding-bottom">
     <div class="container">
         <div class="heading_container heading_center">
             <h2>Nuestra Carta</h2>
         </div>
 
+        <!-- *** FILTROS DE MENÚ (CATEGORÍAS) *** -->
         <ul class="filters_menu">
             <li class="active" data-filter="*">Todos</li>
             @foreach (var categoria in Model.Keys)

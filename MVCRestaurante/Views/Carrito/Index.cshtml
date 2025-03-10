@@ -1,9 +1,12 @@
 ﻿@model List<MVCRestaurante.Models.DetallePedido>
 
+<!-- *** CONTENEDOR PRINCIPAL PARA EL PEDIDO *** -->
 <div style="padding-top: 15%; max-width: 900px; margin: auto;">
 
+    <!-- *** TÍTULO DEL PEDIDO *** -->
     <h2 class="text-center">🛒 Pedido</h2>
 
+    <!-- *** MENSAJE SI EL CARRITO ESTÁ VACÍO *** -->
     <div id="empty-cart-message" class="text-center mt-4" style="display: @(Model.Any() ? "none" : "block");">
         <p>No hay productos en el carrito.</p>
         <a asp-controller="Home" asp-action="Index" class="btn btn-primary" style="margin-bottom:15%">
@@ -13,6 +16,7 @@
 
     @if (Model.Any())
     {
+        <!-- *** CONTENIDO DEL CARRITO CUANDO EXISTEN PRODUCTOS *** -->
         <div id="cart-content">
             <table class="table">
                 <thead>
@@ -30,8 +34,12 @@
                         <tr id="row-@item.IdPlato">
                             <td>@item.Plato.Nombre</td>
                             <td>
-                                <input type="number" class="form-control quantity-input" data-id="@item.IdPlato"
-                                       value="@item.Cantidad" min="1" style="width: 80px; display: inline-block;" />
+                                <input type="number"
+                                       class="form-control quantity-input"
+                                       data-id="@item.IdPlato"
+                                       value="@item.Cantidad"
+                                       min="1"
+                                       style="width: 80px; display: inline-block;" />
                             </td>
                             <td>€ @item.Precio</td>
                             <td class="total-price">€ @(item.Precio * item.Cantidad)</td>
@@ -46,18 +54,27 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-end fw-bold">Total Pedido:</td>
-                        <td id="total-cart-price" class="fw-bold">€ @Model.Sum(p => p.Precio * p.Cantidad)</td>
+                        <td id="total-cart-price" class="fw-bold">
+                            € @Model.Sum(p => p.Precio * p.Cantidad)
+                        </td>
                         <td></td>
                     </tr>
                 </tfoot>
             </table>
 
-            <form id="order-form" asp-action="ConfirmarPedido" method="post"
+            <!-- *** FORMULARIO PARA CONFIRMAR EL PEDIDO *** -->
+            <form id="order-form"
+                  asp-action="ConfirmarPedido"
+                  method="post"
                   style="margin-top: 40px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+
                 <h3>Datos del Pedido</h3>
+
                 <div class="mb-3">
                     <label>Teléfono:</label>
-                    <input type="text" name="telefono" class="form-control" required />
+                    <input type="text" name="telefono" class="form-control" required
+                           pattern="^[0-9]+$"
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
                 </div>
                 <div class="mb-3">
                     <label>Nombre:</label>
@@ -70,19 +87,22 @@
                         <option value="DOMICILIO">Domicilio</option>
                     </select>
                 </div>
+
                 <div id="direccionDiv" class="mb-3 d-none">
                     <label>Dirección:</label>
                     <input type="text" name="direccion" class="form-control" />
                 </div>
+
                 <button type="submit" class="btn btn-success">Confirmar Pedido</button>
             </form>
         </div>
     }
 </div>
 
+<!-- *** SCRIPTS PARA MANEJAR EVENTOS DEL CARRITO *** -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Actualizar cantidad automáticamente
+        // *** ACTUALIZAR CANTIDAD AUTOMÁTICAMENTE ***
         document.querySelectorAll(".quantity-input").forEach(input => {
             input.addEventListener("change", function () {
                 let id = this.getAttribute("data-id");
@@ -98,7 +118,7 @@
             });
         });
 
-        // Eliminar del carrito y actualizar la vista si queda vacío
+        // *** ELIMINAR PRODUCTO DEL CARRITO Y ACTUALIZAR VISTA SI ESTÁ VACÍO ***
         document.querySelectorAll(".remove-btn").forEach(button => {
             button.addEventListener("click", function () {
                 let id = this.getAttribute("data-id");
@@ -110,7 +130,7 @@
                         let row = document.getElementById("row-" + id);
                         if (row) row.remove();
 
-                        // Si el carrito está vacío, mostrar mensaje y ocultar el contenido del carrito
+                        // *** SI EL CARRITO QUEDA VACÍO, MOSTRAR MENSAJE Y OCULTAR TABLA ***
                         if (document.querySelectorAll("tbody tr").length === 0) {
                             document.getElementById("cart-content").style.display = "none";
                             document.getElementById("empty-cart-message").style.display = "block";
@@ -120,6 +140,7 @@
         });
     });
 
+    // *** MOSTRAR/OCULTAR CAMPO DIRECCIÓN SEGÚN EL TIPO DE PEDIDO ***
     function mostrarDireccion(select) {
         document.getElementById("direccionDiv").classList.toggle("d-none", select.value !== "DOMICILIO");
     }

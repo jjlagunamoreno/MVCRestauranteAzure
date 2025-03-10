@@ -5,6 +5,14 @@ public class RepositoryRestaurante : IRepositoryRestaurante
 {
     private readonly RestauranteContext _context;
 
+    // CONSTRUCTOR DONDE INYECTAMOS EL CONTEXTO *
+    public RepositoryRestaurante(RestauranteContext context)
+    {
+        _context = context;
+    }
+
+    // OBTIENE LOS DESTACADOS QUE SIGUEN VIGENTES (FECHAFINAL > DateTime.Now),
+    // ORDENADOS POR FECHAINICIO DE MENOR A MAYOR 
     public List<Destacado> GetDestacados()
     {
         return _context.Destacados
@@ -13,42 +21,53 @@ public class RepositoryRestaurante : IRepositoryRestaurante
             .ToList();
     }
 
-    public RepositoryRestaurante(RestauranteContext context)
-    {
-        _context = context;
-    }
-
+    // DEVUELVE TODOS LOS PLATOS DE UNA CATEGORÍA ESPECÍFICA 
     public List<Carta> GetPlatosPorCategoria(string categoria)
     {
-        return _context.Cartas.Where(c => c.TipoPlato == categoria).ToList();
+        return _context.Cartas
+            .Where(c => c.TipoPlato == categoria)
+            .ToList();
     }
 
+    // OBTIENE TODAS LAS CATEGORÍAS DISTINTAS DE LA CARTA 
     public List<string> GetTodasLasCategorias()
     {
-        return _context.Cartas.Select(c => c.TipoPlato).Distinct().ToList();
+        return _context.Cartas
+            .Select(c => c.TipoPlato)
+            .Distinct()
+            .ToList();
     }
 
+    // OBTIENE TODOS LOS PLATOS DISPONIBLES (SIN FILTRO)
     public List<Carta> GetPlatos()
     {
         return _context.Cartas.ToList();
     }
 
-    public List<Reserva> GetReservas()
-    {
-        return _context.Reservas.Include(r => r.Cliente).ToList();
-    }
-
+    // OBTIENE TODOS LOS PEDIDOS, INCLUYENDO EL CLIENTE ASOCIADO
     public List<Pedido> GetPedidos()
     {
-        return _context.Pedidos.Include(p => p.Cliente).ToList();
+        return _context.Pedidos
+            .Include(p => p.Cliente)
+            .ToList();
     }
 
+    // CREA UN NUEVO PEDIDO EN LA BASE DE DATOS
     public void CrearPedido(Pedido pedido)
     {
         _context.Pedidos.Add(pedido);
         _context.SaveChanges();
     }
 
+    // *** OBTIENE TODAS LAS RESERVAS, INCLUYENDO LA INFORMACIÓN DEL CLIENTE ***
+    public List<Reserva> GetReservas()
+    {
+        return _context.Reservas
+            .Include(r => r.Cliente)
+            .ToList();
+    }
+
+    // *** CREA UNA NUEVA RESERVA EN LA BASE DE DATOS ***
     public void CrearReserva(Reserva reserva)
     {
         _context.Reservas.Add(reserva);

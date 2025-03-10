@@ -9,17 +9,27 @@ using System.Data;
 
 public class CarritoController : Controller
 {
+    // *** CONTEXTO DE BASE DE DATOS PARA ACCEDER A LAS ENTIDADES ***
     private readonly RestauranteContext _context;
+
+    // *** CACHE EN MEMORIA PARA GUARDAR EL CARRITO DE COMPRAS ***
     private readonly IMemoryCache _cache;
+
+    // *** CLAVE DE SESIÓN PARA IDENTIFICAR EL CARRITO EN LA CACHE ***
     private const string CarritoSessionKey = "Carrito";
 
+    // *** CONSTRUCTOR CON INYECCIÓN DE DEPENDENCIAS (DB CONTEXT Y CACHE) ***
     public CarritoController(RestauranteContext context, IMemoryCache cache)
     {
         _context = context;
         _cache = cache;
     }
 
-    // Obtener carrito desde caché y asociar los platos
+    // ***********************************************************************
+    // *** MÉTODO PRIVADO PARA OBTENER EL CARRITO DESDE LA CACHE ***
+    // SI NO EXISTE, CREA UN NUEVO CARRITO (LISTA DE DetallePedido)
+    // TAMBIÉN ASEGURA QUE CADA ITEM TENGA SU OBJETO PLATO ASOCIADO
+    // ***********************************************************************
     private List<DetallePedido> ObtenerCarrito()
     {
         if (!_cache.TryGetValue(CarritoSessionKey, out List<DetallePedido> carrito))
@@ -27,20 +37,27 @@ public class CarritoController : Controller
             carrito = new List<DetallePedido>();
         }
 
-        // Asegurar que cada DetallePedido tenga el objeto Plato asociado
+        // *** RECORREMOS EL CARRITO PARA VERIFICAR QUE CADA ITEM TENGA EL OBJETO PLATO ***
         foreach (var item in carrito)
         {
             if (item.Plato == null)
             {
+                // BUSCAMOS EL PLATO CORRESPONDIENTE SEGÚN SU ID
                 item.Plato = _context.Cartas.FirstOrDefault(p => p.IdPlato == item.IdPlato);
             }
         }
 
         return carrito;
     }
+
+    // ***********************************************************************
+    // *** ACCIÓN PARA CONFIRMAR EL PEDIDO (HTTP POST) ***
+    // RECIBE LOS DATOS DEL PEDIDO (TELÉFONO, NOMBRE, TIPO, DIRECCIÓN)
+    // ***********************************************************************
     [HttpPost]
     public IActionResult ConfirmarPedido(string telefono, string nombre, string tipoPedido, string direccion)
     {
+        // *** OBTENEMOS EL CARRITO DESDE LA CACHE ***
         var carrito = ObtenerCarrito();
         if (carrito.Count == 0)
         {
@@ -48,21 +65,23 @@ public class CarritoController : Controller
             return RedirectToAction("Index");
         }
 
+        // *** INICIAMOS UNA TRANSACCIÓN PARA ASEGURAR LA INTEGRIDAD DE LOS DATOS ***
         using (var transaction = _context.Database.BeginTransaction())
         {
             try
             {
-                // Crear tabla de datos para el procedimiento almacenado
+                // *** CREAMOS UN DATATABLE PARA PASAR LOS DETALLES DEL PEDIDO AL PROCEDIMIENTO ALMACENADO ***
                 var detallesPedido = new DataTable();
                 detallesPedido.Columns.Add("ID_PLATO", typeof(int));
                 detallesPedido.Columns.Add("CANTIDAD", typeof(int));
 
+                // *** RECORREMOS CADA ITEM DEL CARRITO Y LO AÑADIMOS AL DATATABLE ***
                 foreach (var item in carrito)
                 {
                     detallesPedido.Rows.Add(item.IdPlato, item.Cantidad);
                 }
 
-                // Parámetro de salida para obtener el ID del nuevo pedido
+                // *** PARAMETRO DE SALIDA PARA OBTENER EL ID DEL NUEVO PEDIDO ***
                 var idPedidoParam = new SqlParameter
                 {
                     ParameterName = "@IdPedido",
@@ -70,39 +89,47 @@ public class CarritoController : Controller
                     Direction = ParameterDirection.Output
                 };
 
-                // Ejecutar el procedimiento almacenado
+                // *** EJECUTAMOS EL PROCEDIMIENTO ALMACENADO PARA REGISTRAR EL PEDIDO ***
                 _context.Database.ExecuteSqlRaw(
                     "EXEC sp_RealizarPedido @Telefono, @Nombre, @Direccion, @TipoPedido, @DetallesPedido, @IdPedido OUTPUT",
                     new SqlParameter("@Telefono", telefono),
                     new SqlParameter("@Nombre", nombre),
+                    // *** SI EL TIPO DE PEDIDO ES DOMICILIO, PASAMOS LA DIRECCIÓN; CASO CONTRARIO, PASAMOS NULL ***
                     new SqlParameter("@Direccion", tipoPedido == "DOMICILIO" ? direccion : (object)DBNull.Value),
                     new SqlParameter("@TipoPedido", tipoPedido),
+                    // *** PASAMOS EL DATATABLE CON LOS DETALLES DEL PEDIDO, CON TYPE NAME DEFINIDO ***
                     new SqlParameter("@DetallesPedido", detallesPedido) { TypeName = "dbo.DetallePedidoType" },
                     idPedidoParam
                 );
 
+                // *** OBTENEMOS EL ID DEL PEDIDO REGISTRADO DESDE EL PARAMETRO DE SALIDA ***
                 int idPedido = (int)idPedidoParam.Value;
 
-                // Confirmar transacción
+                // *** CONFIRMAMOS LA TRANSACCIÓN ***
                 transaction.Commit();
 
-                // Vaciar carrito después de confirmar el pedido
+                // *** VACIAMOS EL CARRITO DESPUÉS DE CONFIRMAR EL PEDIDO ***
                 carrito.Clear();
                 _cache.Set(CarritoSessionKey, carrito);
 
+                // *** REDIRIGIMOS A LA VISTA DE PEDIDO REALIZADO, PASANDO EL ID DEL PEDIDO ***
                 return RedirectToAction("PedidoRealizado", new { id = idPedido });
             }
             catch (Exception ex)
             {
+                // *** EN CASO DE ERROR, REVERTIMOS LA TRANSACCIÓN Y MOSTRAMOS UN MENSAJE DE ERROR ***
                 transaction.Rollback();
-                Console.WriteLine("Error al registrar el pedido: " + ex.Message);
+                Console.WriteLine("ERROR AL REGISTRAR EL PEDIDO: " + ex.Message);
                 TempData["Error"] = "Hubo un problema al confirmar el pedido.";
                 return RedirectToAction("Index");
             }
         }
     }
 
-    // Vista de pedido realizado
+    // ***********************************************************************
+    // *** ACCIÓN PARA MOSTRAR LA VISTA DEL PEDIDO REALIZADO ***
+    // UTILIZA UN PROCEDIMIENTO ALMACENADO O CONSULTA SQL PARA OBTENER LOS DATOS
+    // ***********************************************************************
     public IActionResult PedidoRealizado(int id)
     {
         var pedido = _context.PedidosActivos
@@ -118,8 +145,10 @@ public class CarritoController : Controller
         return View(pedido);
     }
 
-
-    // Mostrar carrito
+    // ***********************************************************************
+    // *** ACCIÓN PARA MOSTRAR EL CARRITO ***
+    // RECUPERA EL CARRITO DESDE LA CACHE Y SE ASEGURA QUE LOS OBJETOS PLATO ESTÉN ASOCIADOS
+    // ***********************************************************************
     public IActionResult Index()
     {
         var carrito = ObtenerCarrito();
@@ -135,7 +164,10 @@ public class CarritoController : Controller
         return View(carrito);
     }
 
-    // Agregar producto al carrito
+    // ***********************************************************************
+    // *** ACCIÓN PARA AGREGAR UN PRODUCTO AL CARRITO ***
+    // RECIBE EL ID DEL PLATO, VERIFICA SU EXISTENCIA Y AÑADE/ACTUALIZA LA CANTIDAD
+    // ***********************************************************************
     public IActionResult Agregar(int id)
     {
         var carrito = ObtenerCarrito();
@@ -146,19 +178,26 @@ public class CarritoController : Controller
             var item = carrito.FirstOrDefault(p => p.IdPlato == id);
             if (item != null)
             {
+                // *** SI EL ITEM YA EXISTE EN EL CARRITO, INCREMENTAMOS SU CANTIDAD ***
                 item.Cantidad++;
             }
             else
             {
+                // *** SI NO EXISTE, LO AÑADIMOS CON CANTIDAD 1 Y PRECIO DEL PLATO ***
                 carrito.Add(new DetallePedido { IdPlato = id, Cantidad = 1, Precio = plato.Precio });
             }
+            // *** ACTUALIZAMOS EL CARRITO EN LA CACHE ***
             _cache.Set(CarritoSessionKey, carrito);
         }
 
+        // *** DEVOLVEMOS EL TOTAL DE PRODUCTOS EN EL CARRITO EN FORMATO JSON ***
         return Json(new { count = carrito.Sum(p => p.Cantidad) });
     }
 
-    // Mostrar pedidos activos (Desde la vista vw_PedidosActivos)
+    // ***********************************************************************
+    // *** ACCIÓN PARA MOSTRAR LOS PEDIDOS ACTIVOS ***
+    // UTILIZA UNA CONSULTA SQL PARA OBTENER LOS DATOS DE LA VISTA vw_PedidosActivos
+    // ***********************************************************************
     public IActionResult PedidosActivos()
     {
         var pedidos = _context.PedidosActivos
@@ -168,6 +207,10 @@ public class CarritoController : Controller
         return View(pedidos);
     }
 
+    // ***********************************************************************
+    // *** ACCIÓN PARA ACTUALIZAR LA CANTIDAD DE UN PRODUCTO EN EL CARRITO ***
+    // ACTUALIZA LA CANTIDAD Y DEVUELVE EL TOTAL Y SUBTOTAL ACTUALIZADO EN FORMATO JSON
+    // ***********************************************************************
     public IActionResult ActualizarCantidad(int id, int cantidad)
     {
         var carrito = ObtenerCarrito();
@@ -186,6 +229,10 @@ public class CarritoController : Controller
         });
     }
 
+    // ***********************************************************************
+    // *** ACCIÓN GET PARA OBTENER LA CANTIDAD TOTAL DE PRODUCTOS EN EL CARRITO ***
+    // DEVUELVE UN OBJETO JSON CON EL TOTAL
+    // ***********************************************************************
     [HttpGet]
     public IActionResult ObtenerCantidad()
     {
@@ -194,6 +241,10 @@ public class CarritoController : Controller
         return Json(new { count = cantidadTotal });
     }
 
+    // ***********************************************************************
+    // *** ACCIÓN DELETE PARA ELIMINAR UN PRODUCTO DEL CARRITO ***
+    // BUSCA EL ITEM POR SU ID Y LO ELIMINA, ACTUALIZANDO LA CACHE
+    // ***********************************************************************
     [HttpDelete]
     public IActionResult Eliminar(int id)
     {
@@ -208,6 +259,4 @@ public class CarritoController : Controller
 
         return Json(new { total = carrito.Sum(p => p.Precio * p.Cantidad) });
     }
-
 }
-    

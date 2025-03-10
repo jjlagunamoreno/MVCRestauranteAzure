@@ -26,6 +26,12 @@ body {
     margin-bottom: 15px;
 }
 
+.navbar-nav .nav-item.active .nav-link {
+    color: #ffbe33 !important;
+    font-weight: bold;
+}
+
+
 /* ==============================
    Tarjetas de Platos
    ============================== */

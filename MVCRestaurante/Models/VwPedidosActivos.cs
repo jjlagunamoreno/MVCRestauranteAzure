@@ -14,6 +14,9 @@ namespace MVCRestaurante.Models
         [Column("NOMBRE")]
         public string Nombre { get; set; }
 
+        [Column("TELEFONO")]
+        public string Telefono { get; set; }
+
         [Column("TIPO_PEDIDO")]
         public string TipoPedido { get; set; }
 
