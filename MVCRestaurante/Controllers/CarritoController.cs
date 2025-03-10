@@ -186,6 +186,14 @@ public class CarritoController : Controller
         });
     }
 
+    [HttpGet]
+    public IActionResult ObtenerCantidad()
+    {
+        var carrito = ObtenerCarrito();
+        int cantidadTotal = carrito.Sum(p => p.Cantidad);
+        return Json(new { count = cantidadTotal });
+    }
+
     [HttpDelete]
     public IActionResult Eliminar(int id)
     {

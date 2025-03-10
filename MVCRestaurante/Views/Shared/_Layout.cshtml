@@ -156,6 +156,19 @@
 
     @* Mis scripts *@
     <script src="~/js/cart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            actualizarContador();
+
+            function actualizarContador() {
+                fetch(`/Carrito/ObtenerCantidad`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("pedidoCount").textContent = data.count;
+                    });
+            }
+        });
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>

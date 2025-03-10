@@ -1,35 +1,45 @@
 ﻿@model List<MVCRestaurante.Models.Menu>
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">📜 Menús Disponibles</h2>
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            @foreach (var menu in Model)
-            {
-                <div class="card mb-3 shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">@menu.NombreMenu</h5>
-                        <a href="~/images/menu/@menu.PdfRuta" target="_blank" class="btn btn-custom">
-                            📄 Ver Menú
-                        </a>
-                    </div>
+<div class="container mt-5" style="padding: 100px 0 100px 0;">
+
+    <div class="d-flex flex-column align-items-center">
+        @foreach (var menu in Model)
+        {
+            <div class="card mb-3 shadow-sm" style="width: 50%;">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">@menu.NombreMenu</h5>
+                    <a href="~/images/menu/@menu.PdfRuta" target="_blank" class="btn btn-custom">
+                        📄 Ver Menú
+                    </a>
                 </div>
-            }
-        </div>
+            </div>
+        }
     </div>
 </div>
 
+<!-- Estilos Personalizados -->
 <style>
     .btn-custom {
         background-color: #ffbe33;
-        border-color: #ffbe33;
         color: white;
         font-weight: bold;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        transition: 0.3s ease-in-out;
     }
 
         .btn-custom:hover {
-            background-color: #e6a82a;
-            border-color: #e6a82a;
+            background-color: #e6a62c;
             color: white;
+        }
+
+    .card {
+        border-left: 5px solid #ffbe33;
+        transition: 0.3s ease-in-out;
+    }
+
+        .card:hover {
+            transform: scale(1.02);
         }
 </style>

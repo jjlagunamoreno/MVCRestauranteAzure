@@ -3,37 +3,51 @@ using MVCRestaurante.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar la base de datos con Entity Framework
+// CONFIGURAR BASE DE DATOS CON ENTITY FRAMEWORK
 builder.Services.AddDbContext<RestauranteContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlHospital")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("SqlRestaurante")
+    )
+);
 
-// Configurar Caché
+// CONFIGURAR CACHÉ EN MEMORIA
 builder.Services.AddMemoryCache();
 
-// Inyectar repositorios
+// INYECTAR REPOSITORIOS
 builder.Services.AddScoped<IRepositoryRestaurante, RepositoryRestaurante>();
 builder.Services.AddScoped<RepositoryMenu>();
 
-// Agregar controladores con vistas
+// AGREGAR CONTROLADORES CON VISTAS
 builder.Services.AddControllersWithViews();
 
+// CONSTRUIR LA APLICACIÓN
 var app = builder.Build();
 
-// Middleware
+// CONFIGURAR EL PIPELINE DE MIDDLEWARE
 if (!app.Environment.IsDevelopment())
 {
+    // MANEJO DE ERRORES EN PRODUCCIÓN
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+// REDIRECCIONAR A HTTPS
 app.UseHttpsRedirection();
+
+// SERVIR ARCHIVOS ESTÁTICOS (CSS, JS, ETC.)
 app.UseStaticFiles();
+
+// HABILITAR RUTEO
 app.UseRouting();
+
+// HABILITAR AUTORIZACIÓN
 app.UseAuthorization();
 
-// Configurar rutas
+// CONFIGURAR RUTA POR DEFECTO
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
+// EJECUTAR LA APLICACIÓN
 app.Run();
