@@ -10,6 +10,16 @@ public class RepositoryRestaurante : IRepositoryRestaurante
     {
         _context = context;
     }
+    //MÉTODO PARA CAMBIAR EL ESTADO DEL PEDIDO EN LA VISTA PedidosActivos
+    public void CambiarEstadoPedido(int idPedido, string nuevoEstado)
+    {
+        var pedido = _context.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido);
+        if (pedido != null)
+        {
+            pedido.Estado = nuevoEstado;
+            _context.SaveChanges();
+        }
+    }
 
     // OBTIENE LOS DESTACADOS QUE SIGUEN VIGENTES (FECHAFINAL > DateTime.Now),
     // ORDENADOS POR FECHAINICIO DE MENOR A MAYOR 

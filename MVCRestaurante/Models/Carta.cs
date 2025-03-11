@@ -26,5 +26,6 @@ namespace MVCRestaurante.Models
 
         [Column("IMAGEN")]
         public string Imagen { get; set; }
+        public List<Valoracion> Valoraciones { get; set; } = new List<Valoracion>();
     }
 }

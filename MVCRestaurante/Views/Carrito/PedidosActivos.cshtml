@@ -21,7 +21,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
+                <table class="table table-striped table-hover align-middle pedidos-table">
                     <thead class="table-dark">
                         <tr>
                             <th>ID Pedido (Teléfono)</th>
@@ -34,11 +34,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var pedido in group)
+                        @foreach (var pedido in group.OrderBy(p => p.Estado == "ENTREGADO").ThenBy(p => p.HoraPedido))
                         {
                             <!-- SI EL PEDIDO ESTÁ ENTREGADO, SE RESALTA EN VERDE -->
-                            <tr style="@(pedido.Estado == "ENTREGADO" ? "background-color: #d4edda;" : "")">
-                                <!-- MOSTRAMOS EL ID Y EL TELÉFONO DEL CLIENTE -->
+                            <tr id="pedido-@pedido.IdPedido" style="@(pedido.Estado == "ENTREGADO" ? "background-color: #d4edda;" : "")">
                                 <td>
                                     <strong>@pedido.IdPedido</strong>
                                     <span style="margin-left: 8px;">
@@ -46,61 +45,32 @@
                                     </span>
                                 </td>
 
-                                <!-- MOSTRAMOS EL NOMBRE DEL CLIENTE -->
                                 <td>@pedido.Nombre</td>
 
-                                <!-- COLORES SEGÚN TIPO DE PEDIDO -->
                                 <td>
                                     @if (pedido.TipoPedido == "DOMICILIO")
                                     {
-                                        <span style="background-color: #add8e6; border-radius: 5px; padding: 5px; color: #000;">
-                                            @pedido.TipoPedido
-                                        </span>
+                                        <span class="badge bg-info text-dark">@pedido.TipoPedido</span>
                                     }
                                     else
                                     {
-                                        <span style="background-color: #c7ffe5; border-radius: 5px; padding: 5px; color: #000;">
-                                            @pedido.TipoPedido
-                                        </span>
+                                        <span class="badge bg-success text-dark">@pedido.TipoPedido</span>
                                     }
                                 </td>
 
-                                <!-- COLORES SEGÚN ESTADO -->
                                 <td>
-                                    @if (pedido.Estado == "PENDIENTE")
-                                    {
-                                        <div style="background-color: #ffbe33; border-radius: 8px; display: inline-block; padding: 5px; color: #000;">
-                                            @pedido.Estado
-                                        </div>
-                                    }
-                                    else if (pedido.Estado == "CANCELADO")
-                                    {
-                                        <div style="background-color: red; border-radius: 8px; display: inline-block; padding: 5px; color: #fff;">
-                                            @pedido.Estado
-                                        </div>
-                                    }
-                                    else if (pedido.Estado == "ENTREGADO")
-                                    {
-                                        <div style="background-color: green; border-radius: 8px; display: inline-block; padding: 5px; color: #fff;">
-                                            @pedido.Estado
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div style="background-color: #ccc; border-radius: 8px; display: inline-block; padding: 5px; color: #000;">
-                                            @pedido.Estado
-                                        </div>
-                                    }
+                                    <span class="badge @(pedido.Estado == "PENDIENTE" ? "bg-warning" : pedido.Estado == "CANCELADO" ? "bg-danger" : "bg-success")">
+                                        @pedido.Estado
+                                    </span>
                                 </td>
 
-                                <!-- HORA -->
                                 <td>@pedido.HoraPedido.ToString(@"hh\:mm\:ss")</td>
 
                                 <td>€ @pedido.PrecioTotal</td>
 
-                                <!-- CHECKBOX PARA COMPLETAR -->
                                 <td>
-                                    <input type="checkbox" />
+                                    <input type="checkbox" class="completar-pedido" data-id="@pedido.IdPedido"
+                                    @(pedido.Estado == "ENTREGADO" ? "checked" : "") />
                                 </td>
                             </tr>
                         }
@@ -110,3 +80,64 @@
         }
     }
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".completar-pedido").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                let pedidoId = this.dataset.id;
+                let completado = this.checked;
+
+                fetch(`/Carrito/MarcarPedidoComoCompletado?id=${pedidoId}&completado=${completado}`, {
+                    method: "POST"
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let row = document.getElementById(`pedido-${data.id}`);
+                        let estadoBadge = row.querySelector("td:nth-child(4) span");
+                        let tbody = row.closest("tbody"); // Obtener el grupo actual
+
+                        // Actualizar visualmente la fila
+                        if (data.estado === "ENTREGADO") {
+                            row.style.backgroundColor = "#d4edda"; // Verde suave
+                            estadoBadge.textContent = "ENTREGADO";
+                            estadoBadge.className = "badge bg-success";
+                        } else {
+                            row.style.backgroundColor = "";
+                            estadoBadge.textContent = "PENDIENTE";
+                            estadoBadge.className = "badge bg-warning";
+                        }
+
+                        // Reordenar la tabla dentro del mismo grupo
+                        reordenarFilas(tbody, row, data.estado, data.horaPedido);
+                    } else {
+                        console.error("Error al actualizar el pedido");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+
+        function reordenarFilas(tbody, row, estado, horaPedido) {
+            let filas = Array.from(tbody.children);
+            filas = filas.filter(f => f !== row);
+
+            // Si el pedido está entregado, se mueve al final del grupo del mismo día
+            if (estado === "ENTREGADO") {
+                filas.push(row);
+            } else {
+                // Si vuelve a "PENDIENTE", lo volvemos a ordenar por hora
+                filas.push(row);
+                filas.sort((a, b) => {
+                    let horaA = a.querySelector("td:nth-child(5)").textContent.trim();
+                    let horaB = b.querySelector("td:nth-child(5)").textContent.trim();
+                    return horaA.localeCompare(horaB);
+                });
+            }
+
+            // Limpiar y reinsertar las filas en el nuevo orden
+            tbody.innerHTML = "";
+            filas.forEach(fila => tbody.appendChild(fila));
+        }
+    });
+</script>

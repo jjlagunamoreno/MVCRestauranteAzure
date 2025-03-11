@@ -95,9 +95,11 @@
                     {
                         <div class="col-sm-6 col-lg-4 all @categoria.Replace(" ", "").ToLower()">
                             <div class="box">
-                                <div class="img-box">
-                                    <img src="~/images/platos/@plato.Imagen" alt="@plato.Nombre">
-                                </div>
+                                <a href="@Url.Action("Detalle", "Platos", new { id = plato.IdPlato })" class="btn btn-info">
+                                    <div class="img-box">
+                                        <img src="~/images/platos/@plato.Imagen" alt="@plato.Nombre">
+                                    </div>
+                                </a>                                                               
                                 <div class="detail-box">
                                     <h5>@plato.Nombre</h5>
                                     <p>@plato.Descripcion</p>

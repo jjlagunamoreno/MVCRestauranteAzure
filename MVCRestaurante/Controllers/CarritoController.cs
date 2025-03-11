@@ -9,6 +9,7 @@ using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using MVCRestaurante.Filters;
 
+
 public class CarritoController : Controller
 {
     // *** CONTEXTO DE BASE DE DATOS PARA ACCEDER A LAS ENTIDADES ***
@@ -25,6 +26,30 @@ public class CarritoController : Controller
     {
         _context = context;
         _cache = cache;
+    }
+
+    //MÉTODO POST PARA CAMBIAR EL ESTADO DEL PEDIDO EN LA VISTA PedidosActivos
+    [HttpPost]
+    public IActionResult MarcarPedidoComoCompletado(int id, bool completado)
+    {
+        var pedido = _context.Pedidos.FirstOrDefault(p => p.IdPedido == id);
+
+        if (pedido != null)
+        {
+            pedido.Estado = completado ? "ENTREGADO" : "PENDIENTE";
+            _context.SaveChanges();
+
+            return Json(new
+            {
+                success = true,
+                id = pedido.IdPedido,
+                estado = pedido.Estado,
+                fechaPedido = pedido.FechaPedido.ToString("yyyy-MM-dd"), // Formato ISO para comparación
+                horaPedido = pedido.HoraPedido.ToString(@"hh\:mm\:ss")  // Se usa para ordenar correctamente
+            });
+        }
+
+        return Json(new { success = false });
     }
 
     // ***********************************************************************

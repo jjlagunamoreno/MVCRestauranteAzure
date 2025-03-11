@@ -19,6 +19,8 @@ public class RestauranteContext : DbContext
     public DbSet<Reserva> Reservas { get; set; }
     public DbSet<DetallePedido> DetallesPedidos { get; set; }
     public DbSet<Valoracion> Valoraciones { get; set; }
+    public DbSet<VwPedidoActivo> VwPedidosActivos { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,6 +36,7 @@ public class RestauranteContext : DbContext
         modelBuilder.Entity<Reserva>().ToTable("RESERVAS");
         modelBuilder.Entity<DetallePedido>().ToTable("DETALLE_PEDIDOS");
         modelBuilder.Entity<Valoracion>().ToTable("VALORACIONES");
+        modelBuilder.Entity<VwPedidoActivo>().HasNoKey().ToView("vw_PedidosActivos");
 
         base.OnModelCreating(modelBuilder);
     }
