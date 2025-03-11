@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using Microsoft.AspNetCore.Authorization;
+using MVCRestaurante.Filters;
 
 public class CarritoController : Controller
 {
@@ -198,6 +200,7 @@ public class CarritoController : Controller
     // *** ACCIÓN PARA MOSTRAR LOS PEDIDOS ACTIVOS ***
     // UTILIZA UNA CONSULTA SQL PARA OBTENER LOS DATOS DE LA VISTA vw_PedidosActivos
     // ***********************************************************************
+    [AuthorizeEmpleados]
     public IActionResult PedidosActivos()
     {
         var pedidos = _context.PedidosActivos

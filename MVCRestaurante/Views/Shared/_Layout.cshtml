@@ -51,15 +51,7 @@
                             <a class="nav-link" asp-controller="Home" asp-action="Reservas">Reservas</a>
                         </li>
                         <div class="user_option">
-                            <a asp-controller="Login" asp-action="Index" class="user_link">
-                                <i class="fa fa-user" aria-hidden="true"></i>
-                            </a>
-                            <a asp-controller="Carrito" asp-action="Index" class="order_online position-relative">
-                                <i class="fa fa-shopping-cart"></i> Pedido
-                                <span id="pedidoCount" class="badge badge-pill position-absolute top-0 start-100 translate-middle pedido-badge">
-                                    0
-                                </span>
-                            </a>
+                            <partial name="_MenuUsuario" />
                         </div>
                     </ul>
                 </div>
