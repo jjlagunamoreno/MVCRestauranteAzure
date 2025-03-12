@@ -4,30 +4,64 @@
     ViewData["Title"] = "Crear Menú";
 }
 
-<div class="container mt-5" style="padding: 100px 0 100px 0;">
-    <h2 class="text-center mb-4">➕ Crear Nuevo Menú</h2>
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-primary">➕ Crear Nuevo Menú</h2>
 
-    <form asp-action="Crear" method="post" enctype="multipart/form-data" class="shadow p-4 rounded bg-light" style="max-width: 500px; margin: auto;">
+    <form asp-action="Crear" method="post" enctype="multipart/form-data" class="form-container">
         <div class="mb-3">
-            <label asp-for="NombreMenu" class="form-label">Nombre del Menú</label>
-            <input asp-for="NombreMenu" class="form-control" required />
+            <label asp-for="NombreMenu" class="form-label fw-bold">Nombre del Menú</label>
+            <input asp-for="NombreMenu" class="form-control shadow-sm" required />
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Subir Archivo PDF</label>
-            <input type="file" name="PdfFile" class="form-control" required />
+            <label class="form-label fw-bold">Subir Archivo PDF</label>
+            <input type="file" name="PdfFile" class="form-control shadow-sm" required />
         </div>
 
-        <button type="submit" class="btn btn-success w-100">Guardar Menú</button>
+        <button type="submit" class="btn btn-custom w-100">💾 Guardar</button>
     </form>
 
     <div class="text-center mt-3">
-        <a asp-action="Index" class="btn btn-secondary">🔙 Volver al Listado</a>
+        <a asp-action="Index" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i>
+        </a>
     </div>
 </div>
 
 <style>
-    .bg-light {
-        background-color: #f8f9fa !important;
+    .form-container {
+        max-width: 500px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
+
+    .btn-custom {
+        background-color: #ffbe33;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-custom:hover {
+            background-color: #e0a800;
+        }
+
+    .btn-back {
+        display: inline-block;
+        font-size: 24px;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            color: #007bff;
+            transform: scale(1.1);
+        }
 </style>

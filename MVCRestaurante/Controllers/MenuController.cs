@@ -20,14 +20,14 @@ public class MenuController : Controller
         _webHostEnvironment = webHostEnvironment;
     }
 
-    // 📌 MÉTODO PARA LISTAR MENÚS
+    //MÉTODO PARA LISTAR MENÚS
     public IActionResult Index()
     {
         List<Menu> menus = _repository.GetMenus();
         return View(menus);
     }
 
-    // 📌 VISTA PARA CREAR UN MENÚ
+    //VISTA PARA CREAR UN MENÚ
     [AuthorizeEmpleados]
     public IActionResult Crear()
     {
@@ -38,14 +38,12 @@ public class MenuController : Controller
     [AuthorizeEmpleados]
     public IActionResult Crear(Menu menu, IFormFile PdfFile)
     {
-        // ✅ 1. VERIFICAR QUE EL PDF FUE SUBIDO
         if (PdfFile == null || PdfFile.Length == 0)
         {
             ModelState.AddModelError("PdfFile", "El archivo PDF es obligatorio.");
             return View(menu);
         }
 
-        // ✅ 2. GUARDAR EL ARCHIVO PDF EN EL SERVIDOR
         string folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "images/menu");
 
         if (!Directory.Exists(folderPath))
@@ -61,21 +59,12 @@ public class MenuController : Controller
             PdfFile.CopyTo(stream);
         }
 
-        menu.PdfRuta = fileName; // Guardar solo el nombre del archivo
+        menu.PdfRuta = fileName;
 
-        // ✅ 3. INSERTAR EL MENÚ EN LA BASE DE DATOS
         try
         {
             _repository.InsertarMenu(menu);
-
-            // 🚀 VERIFICAR SI SE GENERÓ EL ID
-            if (menu.IdMenu == Guid.Empty)
-            {
-                ModelState.AddModelError("", "Error: No se pudo generar el ID del menú.");
-                return View(menu);
-            }
-
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Menu");  // 🔥 Redirige correctamente
         }
         catch (Exception ex)
         {
@@ -84,7 +73,7 @@ public class MenuController : Controller
         }
     }
 
-    // 📌 MÉTODO PARA EDITAR UN MENÚ
+    //VISTA PARA EDITAR UN MENÚ
     [AuthorizeEmpleados]
     public IActionResult Editar(Guid id)
     {
@@ -95,16 +84,27 @@ public class MenuController : Controller
         }
         return View(menu);
     }
-
     [HttpPost]
     [AuthorizeEmpleados]
     public IActionResult Editar(Menu menu, IFormFile PdfFile)
     {
-        // ✅ 1. SI SE SUBE UN NUEVO ARCHIVO, GUARDARLO
+        var menuExistente = _repository.GetMenuById(menu.IdMenu);
+        if (menuExistente == null)
+        {
+            return NotFound();
+        }
+
         if (PdfFile != null && PdfFile.Length > 0)
         {
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(PdfFile.FileName);
-            string filePath = Path.Combine(_rutaArchivos, fileName);
+            string folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "images/menu");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string fileName = Path.GetFileName(PdfFile.FileName);
+            string filePath = Path.Combine(folderPath, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -113,18 +113,24 @@ public class MenuController : Controller
 
             menu.PdfRuta = fileName;
         }
-
-        // ✅ 2. ACTUALIZAR EL MENÚ EN LA BASE DE DATOS
-        if (ModelState.IsValid)
+        else
         {
-            _repository.EditarMenu(menu);
-            return RedirectToAction("Index");
+            menu.PdfRuta = menuExistente.PdfRuta;
         }
 
-        return View(menu);
+        try
+        {
+            _repository.EditarMenu(menu);
+            return RedirectToAction("Index", "Menu");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", "Error al actualizar el menú: " + ex.Message);
+            return View(menu);
+        }
     }
 
-    // 📌 MÉTODO PARA ELIMINAR UN MENÚ
+    //MÉTODO PARA ELIMINAR UN MENÚ
     [AuthorizeEmpleados]
     [HttpPost]
     public IActionResult Eliminar(Guid id)

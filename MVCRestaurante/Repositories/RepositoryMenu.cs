@@ -68,21 +68,27 @@ namespace MVCRestaurante.Repositories
                 _context.SaveChanges();
             }
         }
-
         public void EditarMenu(Menu menu)
         {
-            var menuExistente = _context.Menu.FirstOrDefault(m => m.IdMenu == menu.IdMenu);
-            if (menuExistente != null)
+            using (var connection = (SqlConnection)_context.Database.GetDbConnection())
             {
-                menuExistente.NombreMenu = menu.NombreMenu;
-                if (!string.IsNullOrEmpty(menu.PdfRuta))
+                connection.Open();
+                using (var command = new SqlCommand("sp_EditarMenu", connection))
                 {
-                    menuExistente.PdfRuta = menu.PdfRuta;
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@ID_MENU", SqlDbType.UniqueIdentifier) { Value = menu.IdMenu });
+                    command.Parameters.Add(new SqlParameter("@NOMBRE", SqlDbType.NVarChar, 255) { Value = menu.NombreMenu });
+                    command.Parameters.Add(new SqlParameter("@ARCHIVO_PDF", SqlDbType.NVarChar, 255) { Value = menu.PdfRuta });
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected == 0)
+                    {
+                        throw new Exception("No se pudo actualizar el menú. Verifique que el ID exista.");
+                    }
                 }
-                _context.SaveChanges();
             }
         }
-
         public void EliminarMenu(Guid id)
         {
             var menu = _context.Menu.FirstOrDefault(m => m.IdMenu == id);

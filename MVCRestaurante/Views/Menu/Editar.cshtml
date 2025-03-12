@@ -1,5 +1,78 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model MVCRestaurante.Models.Menu
+
 @{
+    ViewData["Title"] = "Editar Menú";
 }
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-warning">✏ Editar Menú</h2>
+
+    <form asp-action="Editar" method="post" enctype="multipart/form-data" class="form-container">
+        <input type="hidden" asp-for="IdMenu" />
+
+        <div class="mb-3">
+            <label asp-for="NombreMenu" class="form-label fw-bold">Nombre del Menú</label>
+            <input asp-for="NombreMenu" class="form-control shadow-sm" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Archivo PDF Actual</label>
+            <div class="d-flex align-items-center">
+                <a href="~/images/menu/@Model.PdfRuta" target="_blank" class="btn btn-outline-info">
+                    📄 Ver Archivo
+                </a>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Subir Nuevo Archivo PDF</label>
+            <input type="file" name="PdfFile" class="form-control shadow-sm" />
+        </div>
+
+        <button type="submit" class="btn btn-custom w-100">💾 Guardar Cambios</button>
+    </form>
+
+    <div class="text-center mt-3">
+        <a asp-action="Index" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-custom {
+        background-color: #ffbe33;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-custom:hover {
+            background-color: #e0a800;
+        }
+
+    .btn-back {
+        display: inline-block;
+        font-size: 24px;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            color: #007bff;
+            transform: scale(1.1);
+        }
+</style>
