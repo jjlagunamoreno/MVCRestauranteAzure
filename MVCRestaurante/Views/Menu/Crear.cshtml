@@ -1,0 +1,33 @@
+﻿@model MVCRestaurante.Models.Menu
+
+@{
+    ViewData["Title"] = "Crear Menú";
+}
+
+<div class="container mt-5" style="padding: 100px 0 100px 0;">
+    <h2 class="text-center mb-4">➕ Crear Nuevo Menú</h2>
+
+    <form asp-action="Crear" method="post" enctype="multipart/form-data" class="shadow p-4 rounded bg-light" style="max-width: 500px; margin: auto;">
+        <div class="mb-3">
+            <label asp-for="NombreMenu" class="form-label">Nombre del Menú</label>
+            <input asp-for="NombreMenu" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Subir Archivo PDF</label>
+            <input type="file" name="PdfFile" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Guardar Menú</button>
+    </form>
+
+    <div class="text-center mt-3">
+        <a asp-action="Index" class="btn btn-secondary">🔙 Volver al Listado</a>
+    </div>
+</div>
+
+<style>
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+</style>

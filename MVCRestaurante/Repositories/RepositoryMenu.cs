@@ -1,6 +1,11 @@
-﻿using MVCRestaurante.Models;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using MVCRestaurante.Models;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Transactions;
 
 namespace MVCRestaurante.Repositories
 {
@@ -18,10 +23,74 @@ namespace MVCRestaurante.Repositories
             return _context.Menu.ToList();
         }
 
+        public Menu GetMenuById(Guid id)
+        {
+            return _context.Menu.FirstOrDefault(m => m.IdMenu == id);
+        }
         public void InsertarMenu(Menu menu)
         {
-            _context.Menu.Add(menu);
-            _context.SaveChanges();
+            using (var connection = (SqlConnection)_context.Database.GetDbConnection())
+            {
+                connection.Open();
+                using (var command = new SqlCommand("sp_InsertarMenu", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@NOMBRE", SqlDbType.NVarChar, 255) { Value = menu.NombreMenu });
+                    command.Parameters.Add(new SqlParameter("@ARCHIVO_PDF", SqlDbType.NVarChar, 255) { Value = menu.PdfRuta });
+
+                    // Parámetro de salida para recibir el ID generado
+                    var idOutputParam = new SqlParameter("@ID_GENERADO", SqlDbType.UniqueIdentifier)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(idOutputParam);
+
+                    // Ejecutar el procedimiento almacenado
+                    command.ExecuteNonQuery();
+
+                    // Verificar y asignar el ID generado al objeto menú
+                    if (idOutputParam.Value != DBNull.Value)
+                    {
+                        menu.IdMenu = (Guid)idOutputParam.Value;
+                    }
+                    else
+                    {
+                        throw new Exception("El procedimiento almacenado no devolvió un ID válido.");
+                    }
+                }
+            }
+
+            // Guardar en Entity Framework Core solo si el ID es válido
+            if (menu.IdMenu != Guid.Empty)
+            {
+                _context.Menu.Add(menu);
+                _context.SaveChanges();
+            }
+        }
+
+        public void EditarMenu(Menu menu)
+        {
+            var menuExistente = _context.Menu.FirstOrDefault(m => m.IdMenu == menu.IdMenu);
+            if (menuExistente != null)
+            {
+                menuExistente.NombreMenu = menu.NombreMenu;
+                if (!string.IsNullOrEmpty(menu.PdfRuta))
+                {
+                    menuExistente.PdfRuta = menu.PdfRuta;
+                }
+                _context.SaveChanges();
+            }
+        }
+
+        public void EliminarMenu(Guid id)
+        {
+            var menu = _context.Menu.FirstOrDefault(m => m.IdMenu == id);
+            if (menu != null)
+            {
+                _context.Menu.Remove(menu);
+                _context.SaveChanges();
+            }
         }
     }
 }

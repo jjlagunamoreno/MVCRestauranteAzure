@@ -5,7 +5,7 @@
 }
 
 <div class="container" style="padding-top: 150px; padding-bottom: 150px;">
-    <h1 class="mb-4 text-center">📌 Pedidos</h1>
+    <h1 class="mb-4 text-center">📌 Comandas</h1>
 
     @if (!Model.Any())
     {
@@ -36,7 +36,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var pedido in group.OrderBy(p => p.Estado == "ENTREGADO").ThenBy(p => p.HoraPedido))
+                        @foreach (var pedido in group.OrderBy(p => p.Estado == "ENTREGADO").ThenByDescending(p => p.HoraPedido))
                         {
                             <tr id="pedido-@pedido.IdPedido" style="@(pedido.Estado == "ENTREGADO" ? "background-color: #d4edda;" : "")">
                                 <td>
@@ -85,7 +85,6 @@
                                     {
                                         <span class="text-muted"></span>
                                     }
-                                    
                                 </td>
                             </tr>
                         }
