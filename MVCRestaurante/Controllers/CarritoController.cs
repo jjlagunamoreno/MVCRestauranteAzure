@@ -27,6 +27,41 @@ public class CarritoController : Controller
         _context = context;
         _cache = cache;
     }
+    
+    [HttpPost]
+    public IActionResult MarcarPedidosEnCaminoComoEntregados()
+    {
+        var pedidosEnCamino = _context.Pedidos.Where(p => p.Estado == "EN CAMINO").ToList();
+
+        foreach (var pedido in pedidosEnCamino)
+        {
+            pedido.Estado = "ENTREGADO";
+        }
+
+        _context.SaveChanges();
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
+    public IActionResult CancelarPedido(int id)
+    {
+        var pedido = _context.Pedidos.FirstOrDefault(p => p.IdPedido == id);
+
+        if (pedido == null)
+        {
+            return Json(new { success = false, message = "Pedido no encontrado." });
+        }
+
+        if (pedido.Estado == "ENTREGADO")
+        {
+            return Json(new { success = false, message = "No se puede cancelar un pedido ya entregado." });
+        }
+
+        pedido.Estado = "CANCELADO";
+        _context.SaveChanges();
+
+        return Json(new { success = true });
+    }
 
     //MÉTODO POST PARA CAMBIAR EL ESTADO DEL PEDIDO EN LA VISTA PedidosActivos
     [HttpPost]
@@ -228,6 +263,9 @@ public class CarritoController : Controller
     [AuthorizeEmpleados]
     public IActionResult PedidosActivos()
     {
+        // Marcar automáticamente los pedidos en camino como entregados
+        MarcarPedidosEnCaminoComoEntregados();
+
         var pedidos = _context.PedidosActivos
                              .FromSqlRaw("SELECT * FROM vw_PedidosActivos")
                              .ToList();
