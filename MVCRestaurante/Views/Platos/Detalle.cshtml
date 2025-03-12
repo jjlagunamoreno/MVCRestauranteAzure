@@ -15,13 +15,12 @@
             <h5>Deja tu valoración:</h5>
             <div class="rating">
                 <input type="hidden" id="valoracion" value="5">
-                <span class="star" data-value="5">&#9733;</span>
-                <span class="star" data-value="4">&#9733;</span>
-                <span class="star" data-value="3">&#9733;</span>
-                <span class="star" data-value="2">&#9733;</span>
                 <span class="star" data-value="1">&#9733;</span>
+                <span class="star" data-value="2">&#9733;</span>
+                <span class="star" data-value="3">&#9733;</span>
+                <span class="star" data-value="4">&#9733;</span>
+                <span class="star" data-value="5">&#9733;</span>
             </div>
-
             <textarea id="comentario" class="form-control mt-2" placeholder="Escribe tu comentario..."></textarea>
             <button class="btn btn-primary mt-3" onclick="enviarValoracion(@Model.IdPlato)">Enviar</button>
         </div>
@@ -33,10 +32,10 @@
     @if (Model.Valoraciones.Any())
     {
         <div class="list-group">
-            @foreach (var valoracion in Model.Valoraciones)
+            @foreach (var valoracion in Model.Valoraciones.OrderByDescending(v => v.IdValoracion))
             {
                 <div class="list-group-item">
-                    <strong>@valoracion.Cliente.Nombre</strong> -
+                    <strong>@(valoracion.Cliente != null ? valoracion.Cliente.Nombre : "Anónimo")</strong> -
                     <span class="text-warning">
                         @for (int i = 0; i < valoracion.Valor; i++)
                         {
@@ -52,37 +51,57 @@
     {
         <p>No hay valoraciones aún.</p>
     }
-</div>
+
 
 <script>
-    document.querySelectorAll('.star').forEach(star => {
-        star.addEventListener('click', function () {
-            document.getElementById('valoracion').value = this.dataset.value;
-            document.querySelectorAll('.star').forEach(s => s.style.color = "#ccc");
-            for (let i = 0; i < this.dataset.value; i++) {
-                document.querySelectorAll('.star')[i].style.color = "gold";
-            }
-        });
-    });
+            document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', function () {
+                let valorSeleccionado = this.dataset.value;
+                document.getElementById('valoracion').value = valorSeleccionado;
 
-    function enviarValoracion(idPlato) {
+                // Resetear el color de todas las estrellas
+                document.querySelectorAll('.star').forEach(s => s.style.color = "#ccc");
+
+                // Aplicar color dorado a las estrellas seleccionadas y anteriores
+                document.querySelectorAll('.star').forEach(s => {
+                    if (s.dataset.value <= valorSeleccionado) {
+                        s.style.color = "gold";
+                    }
+                });
+            });
+        });
+
+        function enviarValoracion(idPlato) {
         let telefono = prompt("Introduce tu teléfono para validar:");
+        if (!telefono) {
+            alert("Debes ingresar un teléfono.");
+            return;
+        }
+
         let valor = document.getElementById('valoracion').value;
         let comentario = document.getElementById('comentario').value;
+
+        let data = {
+            idPlato: idPlato,
+            telefono: telefono,
+            valor: parseInt(valor),
+            comentario: comentario
+        };
 
         fetch('/Platos/AgregarValoracion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idPlato, telefono, valor, comentario })
+            body: JSON.stringify(data)
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert("Valoración enviada.");
+                alert("Valoración enviada correctamente.");
                 location.reload();
             } else {
                 alert("Error: " + data.message);
             }
-        });
+        })
+        .catch(error => console.error("Error al enviar la valoración:", error));
     }
 </script>

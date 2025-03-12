@@ -17,7 +17,7 @@ public class PlatosController : Controller
     {
         var plato = _context.Cartas
             .Include(p => p.Valoraciones)
-                .ThenInclude(v => v.Cliente)  // Asegurar la carga de cliente
+                .ThenInclude(v => v.Cliente)  // Carga explícita de Cliente
             .FirstOrDefault(p => p.IdPlato == id);
 
         if (plato == null)
@@ -30,24 +30,44 @@ public class PlatosController : Controller
 
     // Acción para agregar una valoración
     [HttpPost]
-    public IActionResult AgregarValoracion(int idPlato, string telefono, int valor, string comentario)
+    public IActionResult AgregarValoracion([FromBody] Valoracion valoracionInput)
     {
-        var cliente = _context.Clientes.FirstOrDefault(c => c.Telefono == telefono);
+        if (valoracionInput == null || string.IsNullOrEmpty(valoracionInput.Telefono))
+        {
+            return Json(new { success = false, message = "Datos inválidos." });
+        }
+
+        var cliente = _context.Clientes
+            .FirstOrDefault(c => c.Telefono == valoracionInput.Telefono);
+
         if (cliente == null)
         {
             return Json(new { success = false, message = "Cliente no encontrado." });
         }
 
-        var valoracion = new Valoracion
+        // Si Direccion es NULL, se permite el registro
+        if (cliente.Direccion == null)
         {
-            IdPlato = idPlato,
-            Telefono = telefono,
-            Valor = valor,
-            Comentario = comentario,
+            cliente.Direccion = "No especificada";  // Valor predeterminado opcional
+        }
+
+
+        var platoExiste = _context.Cartas.Any(p => p.IdPlato == valoracionInput.IdPlato);
+        if (!platoExiste)
+        {
+            return Json(new { success = false, message = "El plato no existe." });
+        }
+
+        var nuevaValoracion = new Valoracion
+        {
+            IdPlato = valoracionInput.IdPlato,
+            Telefono = valoracionInput.Telefono,
+            Valor = valoracionInput.Valor,
+            Comentario = string.IsNullOrWhiteSpace(valoracionInput.Comentario) ? "Sin comentario" : valoracionInput.Comentario,
             Cliente = cliente
         };
 
-        _context.Valoraciones.Add(valoracion);
+        _context.Valoraciones.Add(nuevaValoracion);
         _context.SaveChanges();
 
         return Json(new { success = true });

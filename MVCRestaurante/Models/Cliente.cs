@@ -14,7 +14,7 @@ namespace MVCRestaurante.Models
         [Column("NOMBRE")]
         public string Nombre { get; set; }
         [Column("DIRECCION")]
-        public string Direccion { get; set; }
+        public string? Direccion { get; set; }
         public List<Valoracion> Valoraciones { get; set; } = new List<Valoracion>();
     }
 }

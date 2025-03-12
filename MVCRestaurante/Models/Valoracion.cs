@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MVCRestaurante.Models
 {
-    [Table("VALORACIONES")] // Asegura que el nombre de la tabla sea correcto
+    [Table("VALORACIONES")]
     public class Valoracion
     {
         [Key]
@@ -27,9 +27,9 @@ namespace MVCRestaurante.Models
 
         // Relaciones
         [ForeignKey("IdPlato")]
-        public Carta Plato { get; set; }
+        public virtual Carta Plato { get; set; }
 
         [ForeignKey("Telefono")]
-        public Cliente Cliente { get; set; }
+        public virtual Cliente Cliente { get; set; }
     }
 }
