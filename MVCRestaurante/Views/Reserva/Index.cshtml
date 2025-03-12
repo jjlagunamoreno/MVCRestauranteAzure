@@ -1,0 +1,39 @@
+﻿@model List<Reserva>
+
+@{
+    ViewData["Title"] = "Reservas";
+}
+
+<h2>Reservas</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Teléfono</th>
+            <th>Nombre</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reserva in Model)
+        {
+            <tr>
+                <td>@reserva.IdReserva</td>
+                <td>@reserva.Telefono</td>
+                <td>@reserva.Nombre</td>
+                <td>@reserva.FechaReserva.ToString("yyyy-MM-dd")</td>
+                <td>@reserva.HoraReserva</td>
+                <td>@reserva.Estado</td>
+                <td>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@reserva.IdReserva">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a class="btn btn-primary" asp-action="Create">Nueva Reserva</a>

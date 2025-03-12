@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using MVCRestaurante.Repositories;
+using Restaurante.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IRepositoryRestaurante, RepositoryRestaurante>();
 builder.Services.AddScoped<RepositoryMenu>();
 builder.Services.AddScoped<RepositoryLogin>();
+builder.Services.AddScoped<RepositoryReserva>();
 
 //INYECTAR SEGURIDAD EN LOGIN
 builder.Services.AddDistributedMemoryCache();

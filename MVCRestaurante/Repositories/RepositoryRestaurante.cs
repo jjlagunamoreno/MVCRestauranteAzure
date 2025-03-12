@@ -69,18 +69,23 @@ public class RepositoryRestaurante : IRepositoryRestaurante
         _context.SaveChanges();
     }
 
-    // *** OBTIENE TODAS LAS RESERVAS, INCLUYENDO LA INFORMACIÓN DEL CLIENTE ***
-    public List<Reserva> GetReservas()
-    {
-        return _context.Reservas
-            .Include(r => r.Cliente)
-            .ToList();
-    }
+    //// *** OBTIENE TODAS LAS RESERVAS, INCLUYENDO LA INFORMACIÓN DEL CLIENTE ***
+    //public List<Reserva> GetReservas()
+    //{
+    //    return _context.Reservas
+    //        .Include(r => r.Cliente)
+    //        .ToList();
+    //}
 
     // *** CREA UNA NUEVA RESERVA EN LA BASE DE DATOS ***
     public void CrearReserva(Reserva reserva)
     {
         _context.Reservas.Add(reserva);
         _context.SaveChanges();
+    }
+
+    public List<Reserva> GetReservas()
+    {
+        throw new NotImplementedException();
     }
 }

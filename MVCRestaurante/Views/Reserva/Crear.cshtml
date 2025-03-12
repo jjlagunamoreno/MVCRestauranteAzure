@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Nueva Reserva";
+}
+
+<h2>Hacer una Reserva</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <input type="text" class="form-control" id="telefono" name="telefono" required>
+    </div>
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" required>
+    </div>
+    <div class="mb-3">
+        <label for="fechaReserva" class="form-label">Fecha de Reserva</label>
+        <input type="date" class="form-control" id="fechaReserva" name="fechaReserva" required>
+    </div>
+    <div class="mb-3">
+        <label for="horaReserva" class="form-label">Hora de Reserva</label>
+        <select class="form-select" id="horaReserva" name="horaReserva">
+            @foreach (var horario in ViewBag.HorariosDisponibles)
+            {
+                <option value="@horario.HORA_RESERVA">@horario.HORA_RESERVA</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Reservar</button>
+</form>

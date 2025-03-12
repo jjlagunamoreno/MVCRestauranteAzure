@@ -48,7 +48,7 @@
                             <a class="nav-link" asp-controller="Menu" asp-action="Index">Menús</a>
                         </li>
                         <li class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Reservas" ? "active" : "")">
-                            <a class="nav-link" asp-controller="Home" asp-action="Reservas">Reservas</a>
+                            <a class="nav-link" asp-controller="Reserva" asp-action="Index">Reservas</a>
                         </li>
                         <div class="user_option">
                             <partial name="_MenuUsuario" />
