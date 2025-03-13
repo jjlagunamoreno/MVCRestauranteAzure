@@ -25,17 +25,19 @@
 
                     <div class="mb-3">
                         <label class="form-label"><i class="fas fa-calendar-alt"></i> Fecha</label>
-                        <input type="date" asp-for="FechaReserva" class="form-control" required>
+                        <input type="date" id="fechaReserva" asp-for="FechaReserva" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label"><i class="fas fa-clock"></i> Hora</label>
-                        <select asp-for="HoraReserva" class="form-select" required>
+                        <select id="horaReserva" asp-for="HoraReserva" class="form-select" required>
                             <option disabled selected>Selecciona una hora</option>
-                            @for (int hora = 13; hora <= 23; hora++)
+                            @if (ViewBag.HorariosDisponibles != null)
                             {
-                                <option value="@($"{hora}:00")">@($"{hora}:00")</option>
-                                <option value="@($"{hora}:30")">@($"{hora}:30")</option>
+                                foreach (var hora in ViewBag.HorariosDisponibles)
+                                {
+                                    <option value="@hora">@hora</option>
+                                }
                             }
                         </select>
                     </div>
@@ -78,12 +80,12 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="reservasBody">
                             @if (ViewBag.Reservas != null)
                             {
                                 foreach (var reserva in ViewBag.Reservas as List<MVCRestaurante.Models.Reserva>)
                                 {
-                                    <tr>
+                                    <tr id="reserva-@reserva.IdReserva">
                                         <td>@reserva.IdReserva</td>
                                         <td>@reserva.Nombre</td>
                                         <td>@reserva.Telefono</td>
@@ -91,24 +93,18 @@
                                         <td>@reserva.HoraReserva</td>
                                         <td>@reserva.Personas</td>
                                         <td>
-                                            <span class="badge bg-@(reserva.Estado == "Pendiente" ? "warning" : "success")">
+                                            <span class="badge estado-badge @(reserva.Estado == "PENDIENTE" ? "bg-orange text-dark" : "bg-success")">
                                                 @reserva.Estado
                                             </span>
                                         </td>
                                         <td>
-                                            <form asp-action="EliminarReserva" asp-controller="Reserva" method="post" style="display:inline;">
-                                                <input type="hidden" name="id" value="@reserva.IdReserva" />
-                                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button class="btn btn-danger btn-sm eliminar-reserva" data-id="@reserva.IdReserva" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
 
-                                            <form asp-action="ConfirmarReserva" asp-controller="Reserva" method="post" style="display:inline;">
-                                                <input type="hidden" name="id" value="@reserva.IdReserva" />
-                                                <button type="submit" class="btn btn-success btn-sm" title="Confirmar">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            </form>
+                                            <button class="btn btn-success btn-sm confirmar-reserva" data-id="@reserva.IdReserva" title="Confirmar">
+                                                <i class="fas fa-check"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -120,3 +116,49 @@
         }
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // ELIMINAR RESERVA
+        document.querySelectorAll(".eliminar-reserva").forEach(button => {
+            button.addEventListener("click", function () {
+                let reservaId = this.dataset.id;
+                if (confirm("¿Seguro que deseas eliminar esta reserva?")) {
+                    fetch(`/Reserva/EliminarReserva/${reservaId}`, {
+                        method: "POST"
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById(`reserva-${reservaId}`).remove();
+                        } else {
+                            alert("Error al eliminar la reserva.");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                }
+            });
+        });
+
+        // CONFIRMAR RESERVA
+        document.querySelectorAll(".confirmar-reserva").forEach(button => {
+            button.addEventListener("click", function () {
+                let reservaId = this.dataset.id;
+                fetch(`/Reserva/ConfirmarReserva/${reservaId}`, {
+                    method: "POST"
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let estadoBadge = document.querySelector(`#reserva-${reservaId} .estado-badge`);
+                        estadoBadge.textContent = "CONFIRMADA";
+                        estadoBadge.classList.remove("bg-warning");
+                        estadoBadge.classList.add("bg-success");
+                    } else {
+                        alert("Error al confirmar la reserva.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+    });
+</script>

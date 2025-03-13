@@ -54,5 +54,22 @@ namespace MVCRestaurante.Repositories
         {
             return _context.Reservas.Count(r => r.FechaReserva == fecha && r.HoraReserva == hora) < 4;
         }
+
+        public List<string> ObtenerHorariosDisponibles(DateTime fecha)
+        {
+            List<string> horarios = new List<string>();
+            for (int hora = 13; hora <= 23; hora++)
+            {
+                var horaCompleta1 = $"{hora}:00";
+                var horaCompleta2 = $"{hora}:30";
+
+                if (EsHorarioDisponible(fecha, TimeSpan.Parse(horaCompleta1)))
+                    horarios.Add(horaCompleta1);
+                if (EsHorarioDisponible(fecha, TimeSpan.Parse(horaCompleta2)))
+                    horarios.Add(horaCompleta2);
+            }
+            return horarios;
+        }
+
     }
 }

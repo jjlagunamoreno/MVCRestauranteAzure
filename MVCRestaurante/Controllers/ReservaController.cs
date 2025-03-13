@@ -17,11 +17,24 @@ namespace MVCRestaurante.Controllers
             _repo = repo;
         }
 
-        // Vista para los usuarios normales: Crear reserva
+        // Vista para los usuarios normales:
         public IActionResult Index()
         {
+            var fechaHoy = DateTime.Today;
+            List<string> horariosDisponibles = _repo.ObtenerHorariosDisponibles(fechaHoy);
+
+            ViewBag.HorariosDisponibles = horariosDisponibles;
             ViewBag.Reservas = _repo.GetReservas();
+
             return View();
+        }
+
+
+        [HttpPost]
+        public IActionResult ObtenerHorariosDisponibles(DateTime fecha)
+        {
+            var horarios = _repo.ObtenerHorariosDisponibles(fecha);
+            return Json(horarios);
         }
 
         // Registrar una nueva reserva
@@ -42,14 +55,14 @@ namespace MVCRestaurante.Controllers
         public IActionResult EliminarReserva(int id)
         {
             _repo.EliminarReserva(id);
-            return RedirectToAction("Admin");
+            return Json(new { success = true });
         }
 
         [HttpPost]
         public IActionResult ConfirmarReserva(int id)
         {
             _repo.ConfirmarReserva(id);
-            return RedirectToAction("Admin");
+            return Json(new { success = true });
         }
     }
 }
