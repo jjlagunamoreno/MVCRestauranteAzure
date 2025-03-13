@@ -72,4 +72,18 @@ public class PlatosController : Controller
 
         return Json(new { success = true });
     }
+
+    [HttpPost]
+    public IActionResult EliminarValoracion(int id)
+    {
+        var valoracion = _context.Valoraciones.Find(id);
+        if (valoracion != null)
+        {
+            _context.Valoraciones.Remove(valoracion);
+            _context.SaveChanges();
+            return Json(new { success = true });
+        }
+        return Json(new { success = false, message = "Valoración no encontrada." });
+    }
+
 }

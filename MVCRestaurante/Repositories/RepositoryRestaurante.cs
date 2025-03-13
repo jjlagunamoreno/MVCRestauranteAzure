@@ -88,4 +88,15 @@ public class RepositoryRestaurante : IRepositoryRestaurante
     {
         throw new NotImplementedException();
     }
+
+    public void EliminarValoracion(int id)
+    {
+        var valoracion = _context.Valoraciones.Find(id);
+        if (valoracion != null)
+        {
+            _context.Valoraciones.Remove(valoracion);
+            _context.SaveChanges();
+        }
+    }
+
 }
