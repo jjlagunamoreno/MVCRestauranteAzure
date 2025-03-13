@@ -1,10 +1,11 @@
 ﻿@model MVCRestaurante.Models.Reserva
 @using MVCRestaurante.Filters
+
 @{
     var esAdmin = User.Identity.IsAuthenticated;
 }
 
-<div class="container mt-5">
+<div class="container mt-5" style="padding: 100px 0 100px 0;">
     <div class="row">
         <!-- Formulario de Reserva -->
         <div class="col-md-6">

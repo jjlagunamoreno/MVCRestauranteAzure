@@ -18,7 +18,9 @@ namespace MVCRestaurante.Repositories
         // Obtener todas las reservas para el administrador
         public List<Reserva> GetReservas()
         {
-            return _context.Reservas.ToList();
+            return _context.Reservas
+                .OrderByDescending(r => r.FechaReserva)
+                .ToList();
         }
 
         // Crear una nueva reserva
