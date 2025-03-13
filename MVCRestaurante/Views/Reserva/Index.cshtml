@@ -1,39 +1,106 @@
-﻿@model List<Reserva>
-
+﻿@model MVCRestaurante.Models.Reserva
+@using MVCRestaurante.Filters
 @{
-    ViewData["Title"] = "Reservas";
+    var esAdmin = User.Identity.IsAuthenticated;
 }
 
-<h2>Reservas</h2>
+<div class="container mt-5">
+    <div class="row">
+        <!-- Formulario de Reserva -->
+        <div class="col-md-6">
+            <div class="borderbox p-4 shadow-lg rounded">
+                <h2 class="title title--small text-center"><em>Haz tu RESERVA</em></h2>
+                <p class="text-muted text-center">Selecciona el Grosso que más se ajuste a ti.</p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Teléfono</th>
-            <th>Nombre</th>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var reserva in Model)
+                <form class="form" asp-action="CrearReserva" asp-controller="Reserva" method="post">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label"><i class="fas fa-user"></i> Tu Nombre</label>
+                        <input type="text" asp-for="Nombre" class="form-control" placeholder="Escribe tu nombre" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label"><i class="fas fa-phone"></i> Tu Teléfono</label>
+                        <input type="tel" asp-for="Telefono" class="form-control" placeholder="Escribe tu teléfono" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fechaReserva" class="form-label"><i class="fas fa-calendar-alt"></i> Fecha</label>
+                        <input type="date" asp-for="FechaReserva" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="horaReserva" class="form-label"><i class="fas fa-clock"></i> Hora</label>
+                        <select asp-for="HoraReserva" class="form-select" required>
+                            <option disabled selected>Selecciona una hora</option>
+                            @for (int hora = 13; hora <= 23; hora++)
+                            {
+                                <option value="@($"{hora}:00")">@($"{hora}:00")</option>
+                                <option value="@($"{hora}:30")">@($"{hora}:30")</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="personas" class="form-label"><i class="fas fa-users"></i> Número de Personas</label>
+                        <select asp-for="Personas" class="form-select" required>
+                            <option disabled selected>Selecciona</option>
+                            @for (int i = 1; i <= 9; i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-calendar-check"></i> Reservar
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabla de Reservas (Visible solo para Administradores) -->
+        @if (esAdmin)
         {
-            <tr>
-                <td>@reserva.IdReserva</td>
-                <td>@reserva.Telefono</td>
-                <td>@reserva.Nombre</td>
-                <td>@reserva.FechaReserva.ToString("yyyy-MM-dd")</td>
-                <td>@reserva.HoraReserva</td>
-                <td>@reserva.Estado</td>
-                <td>
-                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@reserva.IdReserva">Eliminar</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+            <div class="col-md-6">
+                <div class="borderbox p-4 shadow-lg rounded">
+                    <h3 class="text-center text-primary"><i class="fas fa-list"></i> Reservas Actuales</h3>
 
-<a class="btn btn-primary" asp-action="Create">Nueva Reserva</a>
+                    <table class="table table-hover mt-3">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Personas</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.Reservas != null)
+                            {
+                                foreach (var reserva in ViewBag.Reservas as List<MVCRestaurante.Models.Reserva>)
+                                {
+                                    <tr>
+                                        <td>@reserva.IdReserva</td>
+                                        <td>@reserva.Nombre</td>
+                                        <td>@reserva.Telefono</td>
+                                        <td>@reserva.FechaReserva.ToShortDateString()</td>
+                                        <td>@reserva.HoraReserva</td>
+                                        <td>@reserva.Personas</td>
+                                        <td>
+                                            <span class="badge bg-@(reserva.Estado == "Pendiente" ? "warning" : "success")">
+                                                @reserva.Estado
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>

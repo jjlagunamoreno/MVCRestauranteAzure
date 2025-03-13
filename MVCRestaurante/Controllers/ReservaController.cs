@@ -1,56 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MVCRestaurante.Models;
-using Restaurante.Repositories;
+using MVCRestaurante.Repositories;
 
-namespace Restaurante.Controllers
+namespace MVCRestaurante.Controllers
 {
-    public class ReservasController : Controller
+    public class ReservaController : Controller
     {
-        private readonly RepositoryReserva repository;
+        private readonly RepositoryReservas _repo;
 
-        public ReservasController(RepositoryReserva repository)
+        public ReservaController(RepositoryReservas repo)
         {
-            this.repository = repository;
+            _repo = repo;
         }
 
-        // Mostrar todas las reservas (solo para administradores)
-        [Authorize(Roles = "Administrador")]
-        public IActionResult Index()
+        // Vista para el administrador: Ver todas las reservas
+        [Authorize(Roles = "Admin")]
+        public IActionResult Admin()
         {
-            List<Reserva> reservas = repository.GetReservas();
+            var reservas = _repo.GetReservas();
             return View(reservas);
         }
 
-        // Formulario para agregar una nueva reserva
-        public IActionResult Create()
+        // Vista para los usuarios normales: Crear reserva
+        public IActionResult Index()
         {
             return View();
         }
 
-        // Procesar la reserva
+        // Registrar una nueva reserva
         [HttpPost]
-        public IActionResult Create(string telefono, string nombre, DateTime fechaReserva, TimeSpan horaReserva)
+        public IActionResult CrearReserva(Reserva reserva)
         {
-            string mensaje;
-            bool resultado = repository.InsertarReserva(telefono, nombre, fechaReserva, horaReserva, out mensaje);
-
-            if (!resultado)
+            if (!_repo.EsHorarioDisponible(reserva.FechaReserva, reserva.HoraReserva))
             {
-                ViewBag.Error = mensaje;
-                return View();
+                ModelState.AddModelError("", "Este horario ya está lleno. Elige otra hora.");
+                return View("Index", reserva);
             }
 
-            return RedirectToAction("Index");
-        }
-
-        // Eliminar una reserva (solo admin)
-        [Authorize(Roles = "Administrador")]
-        public IActionResult Delete(int id)
-        {
-            repository.EliminarReserva(id);
+            _repo.CrearReserva(reserva);
             return RedirectToAction("Index");
         }
     }

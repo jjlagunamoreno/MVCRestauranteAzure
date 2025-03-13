@@ -1,85 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using MVCRestaurante.Models;
 
-namespace Restaurante.Repositories
+namespace MVCRestaurante.Repositories
 {
-    public class RepositoryReserva
+    public class RepositoryReservas
     {
-        private readonly string connectionString;
+        private readonly RestauranteContext _context;
 
-        public RepositoryReserva(IConfiguration configuration)
+        public RepositoryReservas(RestauranteContext context)
         {
-            this.connectionString = configuration.GetConnectionString("DefaultConnection");
+            _context = context;
         }
 
-        // Obtener todas las reservas
+        // Obtener todas las reservas para el administrador
         public List<Reserva> GetReservas()
         {
-            List<Reserva> reservas = new List<Reserva>();
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                string sql = "SELECT ID_RESERVA, TELEFONO, NOMBRE, FECHA_RESERVA, HORA_RESERVA, ESTADO FROM RESERVAS";
-                SqlCommand command = new SqlCommand(sql, connection);
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    reservas.Add(new Reserva
-                    {
-                        IdReserva = reader.GetInt32(0),
-                        Telefono = reader.GetString(1),
-                        Nombre = reader.GetString(2),
-                        FechaReserva = reader.GetDateTime(3),
-                        HoraReserva = reader.GetTimeSpan(4),
-                        Estado = reader.GetString(5)
-                    });
-                }
-            }
-            return reservas;
+            return _context.Reservas.ToList();
         }
 
-        // Insertar una reserva
-        public bool InsertarReserva(string telefono, string nombre, DateTime fechaReserva, TimeSpan horaReserva, out string mensaje)
+        // Crear una nueva reserva
+        public void CrearReserva(Reserva reserva)
         {
-            mensaje = "";
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                SqlCommand command = new SqlCommand("sp_InsertarReserva", connection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@Telefono", telefono);
-                command.Parameters.AddWithValue("@Nombre", nombre);
-                command.Parameters.AddWithValue("@FechaReserva", fechaReserva);
-                command.Parameters.AddWithValue("@HoraReserva", horaReserva);
-
-                connection.Open();
-                try
-                {
-                    command.ExecuteNonQuery();
-                    return true;
-                }
-                catch (SqlException ex)
-                {
-                    mensaje = ex.Message;
-                    return false;
-                }
-            }
+            _context.Reservas.Add(reserva);
+            _context.SaveChanges();
         }
 
-        // Eliminar una reserva por ID
-        public void EliminarReserva(int idReserva)
+        // Verificar si una fecha y hora ya tiene 4 reservas
+        public bool EsHorarioDisponible(DateTime fecha, TimeSpan hora)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                string sql = "DELETE FROM RESERVAS WHERE ID_RESERVA = @IdReserva";
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@IdReserva", idReserva);
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
+            return _context.Reservas.Count(r => r.FechaReserva == fecha && r.HoraReserva == hora) < 4;
         }
     }
 }

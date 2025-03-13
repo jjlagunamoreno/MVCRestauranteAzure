@@ -6,23 +6,32 @@ namespace MVCRestaurante.Models
 {
     public class Reserva
     {
-        [Key]  // Define la clave primaria
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Generación automática del ID
+        [Key]
+        [Column("ID_RESERVA")]
         public int IdReserva { get; set; }
 
         [Required]
+        [Column("NOMBRE")]
         public string Nombre { get; set; }
 
         [Required]
+        [Column("TELEFONO")]
         public string Telefono { get; set; }
 
         [Required]
+        [Column("FECHA_RESERVA")]
         public DateTime FechaReserva { get; set; }
 
         [Required]
+        [Column("HORA_RESERVA")]
         public TimeSpan HoraReserva { get; set; }
 
         [Required]
-        public string Estado { get; set; }
+        [Column("CAPACIDAD")]
+        public int Personas { get; set; }
+
+        [Required]
+        [Column("ESTADO")]
+        public string Estado { get; set; } = "PENDIENTE";
     }
 }
