@@ -1,0 +1,125 @@
+﻿<!-- MODAL PARA CREAR PLATO -->
+<div class="modal fade" id="modalCrearPlato" tabindex="-1" aria-labelledby="modalCrearPlatoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">➕ Crear Nuevo Plato</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCrearPlato">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombreCrear" name="Nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcionCrear" name="Descripcion" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio (€)</label>
+                        <input type="number" class="form-control" id="precioCrear" name="Precio" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Plato</label>
+                        <input type="text" class="form-control" id="tipoCrear" name="TipoPlato" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagen</label>
+                        <input type="file" class="form-control" id="imagenCrear" name="Imagen" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">💾 Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA EDITAR PLATO -->
+<div class="modal fade" id="modalEditarPlato" tabindex="-1" aria-labelledby="modalEditarPlatoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">✏ Editar Plato</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarPlato">
+                    <input type="hidden" id="idEditar" name="IdPlato">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombreEditar" name="Nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcionEditar" name="Descripcion" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio (€)</label>
+                        <input type="number" class="form-control" id="precioEditar" name="Precio" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Plato</label>
+                        <input type="text" class="form-control" id="tipoEditar" name="TipoPlato" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagen (Opcional)</label>
+                        <input type="file" class="form-control" id="imagenEditar" name="Imagen" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">Actualizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // CREAR PLATO
+        document.getElementById("formCrearPlato").addEventListener("submit", function (event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+
+            fetch("/AdminCarta/Crear", {
+                method: "POST",
+                body: formData
+            }).then(response => response.ok ? location.reload() : alert("Error al crear el plato."));
+        });
+
+        // CARGAR DATOS EN EL MODAL DE EDICIÓN
+        document.querySelectorAll(".editar-plato").forEach(button => {
+            button.addEventListener("click", function () {
+                document.getElementById("idEditar").value = this.dataset.id;
+                document.getElementById("nombreEditar").value = this.dataset.nombre;
+                document.getElementById("descripcionEditar").value = this.dataset.descripcion;
+                document.getElementById("precioEditar").value = this.dataset.precio;
+                document.getElementById("tipoEditar").value = this.dataset.tipo;
+            });
+        });
+
+        // EDITAR PLATO
+        document.getElementById("formEditarPlato").addEventListener("submit", function (event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+            let imagenInput = document.getElementById("imagenEditar");
+
+            if (imagenInput.files.length === 0) {
+                formData.delete("Imagen"); // No enviar imagen si no se seleccionó
+            }
+
+            fetch("/AdminCarta/Editar", {
+                method: "POST",
+                body: formData
+            }).then(response => response.ok ? location.reload() : alert("Error al actualizar el plato."));
+        });
+
+        // CAMBIAR ESTADO DEL PLATO
+        document.querySelectorAll(".cambiar-estado").forEach(button => {
+            button.addEventListener("click", function () {
+                let id = this.dataset.id;
+                fetch(`/AdminCarta/CambiarEstado/${id}`, { method: "POST" })
+                    .then(response => response.ok ? location.reload() : alert("Error al cambiar estado."));
+            });
+        });
+    });
+</script>

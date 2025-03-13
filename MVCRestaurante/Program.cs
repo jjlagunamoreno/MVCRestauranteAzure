@@ -20,6 +20,7 @@ builder.Services.AddScoped<RepositoryMenu>();
 builder.Services.AddScoped<RepositoryLogin>();
 builder.Services.AddScoped<RepositoryReservas>();
 builder.Services.AddScoped<RepositoryDestacados>();
+builder.Services.AddScoped<RepositoryCarta>();
 
 //INYECTAR SEGURIDAD EN LOGIN
 builder.Services.AddDistributedMemoryCache();

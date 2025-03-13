@@ -1,0 +1,62 @@
+﻿@model List<MVCRestaurante.Models.Carta>
+
+@{
+    ViewData["Title"] = "Administrar Carta";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center">Administración de la Carta</h2>
+
+    <!-- Botón para crear un nuevo plato -->
+    <div class="text-center mb-3">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearPlato">
+            ➕ Crear Nuevo Plato
+        </button>
+    </div>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var plato in Model)
+            {
+                <tr>
+                    <td>@plato.Nombre</td>
+                    <td>@plato.Descripcion</td>
+                    <td>€@plato.Precio</td>
+                    <td>@plato.TipoPlato</td>
+                    <td>
+                        <span class="badge @(plato.Activo == "SI" ? "bg-success" : "bg-danger")">
+                            @(plato.Activo == "SI" ? "Activo" : "Desactivado")
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#modalEditarPlato"
+                                data-id="@plato.IdPlato"
+                                data-nombre="@plato.Nombre"
+                                data-descripcion="@plato.Descripcion"
+                                data-precio="@plato.Precio"
+                                data-tipo="@plato.TipoPlato"
+                                data-estado="@plato.Activo">
+                            ✏ Editar
+                        </button>
+                        <button class="btn btn-danger btn-sm cambiar-estado" data-id="@plato.IdPlato">
+                            @(plato.Activo == "SI" ? "Desactivar" : "Activar")
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@Html.Partial("_ModalPlato")

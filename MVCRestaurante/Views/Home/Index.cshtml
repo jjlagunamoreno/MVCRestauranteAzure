@@ -15,12 +15,24 @@
             <h2>Nuestra Carta</h2>
         </div>
 
-        <!-- *** FILTROS DE MENÚ (CATEGORÍAS) *** -->
+        <!-- Botón de Configuración para el Admin -->
+        @if (esAdmin)
+        {
+            <div class="text-center mt-5">
+                <a href="@Url.Action("Index", "AdminCarta")" class="btn btn-dark">
+                    <i class="fas fa-cogs"></i> Gestionar Carta
+                </a>
+            </div>
+        }
+
         <ul class="filters_menu">
             <li class="active" data-filter="*">Todos</li>
             @foreach (var categoria in Model.Keys)
             {
-                <li data-filter=".@categoria.Replace(" ", "").ToLower()">@categoria</li>
+                if (Model[categoria].Any(plato => plato.Activo == "SI"))
+                {
+                    <li data-filter=".@categoria.Replace(" ", "").ToLower()">@categoria</li>
+                }
             }
         </ul>
 
@@ -28,7 +40,7 @@
             <div class="row grid">
                 @foreach (var categoria in Model.Keys)
                 {
-                    @foreach (var plato in Model[categoria])
+                    @foreach (var plato in Model[categoria].Where(p => p.Activo == "SI"))
                     {
                         <div class="col-sm-6 col-lg-4 all @categoria.Replace(" ", "").ToLower()">
                             <div class="box">
@@ -55,30 +67,29 @@
                 }
             </div>
         </div>
-    </div>
-</section>
 
-@* ESPACIO PARA GUARDAR LA UBICACIÓN DE LA EMPRESA *@
-<section class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow-lg border-0 rounded">
-                <div class="card-body">
-                    <h2 class="text-center mb-4">
-                        <i class="fas fa-map-marker-alt"></i> Nuestra Ubicación
-                    </h2>
-                    <p class="text-center text-muted">
-                        Visítanos en nuestra sede. ¡Estaremos encantados de atenderte!
-                    </p>
-                    <div class="embed-responsive embed-responsive-16by9 rounded shadow">
-                        <iframe class="embed-responsive-item w-100" height="450"
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3038.5117800569174!2d-3.654944300651533!3d40.3975119307498!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd4225e8ff764297%3A0xe65b1da855dfafd4!2sColegio%20Tajamar!5e0!3m2!1ses!2ses!4v1741866617009!5m2!1ses!2ses"
-                                style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
+        @* ESPACIO PARA GUARDAR LA UBICACIÓN DE LA EMPRESA *@
+        <section class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="card shadow-lg border-0 rounded">
+                        <div class="card-body">
+                            <h2 class="text-center mb-4">
+                                <i class="fas fa-map-marker-alt"></i> Nuestra Ubicación
+                            </h2>
+                            <p class="text-center text-muted">
+                                Visítanos en nuestra sede. ¡Estaremos encantados de atenderte!
+                            </p>
+                            <div class="embed-responsive embed-responsive-16by9 rounded shadow">
+                                <iframe class="embed-responsive-item w-100" height="450"
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3038.5117800569174!2d-3.654944300651533!3d40.3975119307498!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd4225e8ff764297%3A0xe65b1da855dfafd4!2sColegio%20Tajamar!5e0!3m2!1ses!2ses!4v1741866617009!5m2!1ses!2ses"
+                                        style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 </section>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
