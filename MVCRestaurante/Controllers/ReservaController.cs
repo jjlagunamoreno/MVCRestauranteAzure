@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MVCRestaurante.Filters;
 using MVCRestaurante.Models;
 using MVCRestaurante.Repositories;
@@ -41,15 +42,23 @@ namespace MVCRestaurante.Controllers
         [HttpPost]
         public IActionResult CrearReserva(Reserva reserva)
         {
+            if (reserva == null || string.IsNullOrEmpty(reserva.Nombre))
+            {
+                return Json(new { success = false, message = "Faltan datos para la reserva." });
+            }
+
+            // Verificar si el horario está disponible
             if (!_repo.EsHorarioDisponible(reserva.FechaReserva, reserva.HoraReserva))
             {
-                ModelState.AddModelError("", "Este horario ya está lleno. Elige otra hora.");
-                return View("Index", reserva);
+                return Json(new { success = false, message = "Este horario ya está lleno. Elige otra hora." });
             }
 
             _repo.CrearReserva(reserva);
-            return RedirectToAction("Index");
+
+            // 🔥 Retornar JSON con el nombre y la hora de la reserva para la alerta
+            return Json(new { success = true, nombre = reserva.Nombre, horaReserva = reserva.HoraReserva });
         }
+
 
         [HttpPost]
         public IActionResult EliminarReserva(int id)

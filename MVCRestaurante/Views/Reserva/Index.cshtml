@@ -9,8 +9,7 @@
     <div class="row justify-content-center @(esAdmin ? "" : "justify-content-md-center")">
         <div class="@(esAdmin ? "col-md-6" : "col-md-8")">
             <div class="borderbox p-4 shadow-lg rounded">
-                <h2 class="title title--small text-center"><em>Haz tu RESERVA</em></h2>
-                <p class="text-muted text-center">Selecciona el Grosso que más se ajuste a ti.</p>
+                <h2 class="title title--small text-center">Haz tu RESERVA</h2>
 
                 <form class="form" asp-action="CrearReserva" asp-controller="Reserva" method="post">
                     <div class="mb-3">
@@ -116,30 +115,82 @@
         }
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // ELIMINAR RESERVA
-        document.querySelectorAll(".eliminar-reserva").forEach(button => {
-            button.addEventListener("click", function () {
-                let reservaId = this.dataset.id;
-                if (confirm("¿Seguro que deseas eliminar esta reserva?")) {
-                    fetch(`/Reserva/EliminarReserva/${reservaId}`, {
-                        method: "POST"
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            document.getElementById(`reserva-${reservaId}`).remove();
-                        } else {
-                            alert("Error al eliminar la reserva.");
-                        }
-                    })
-                    .catch(error => console.error("Error:", error));
+        // MANEJO DEL FORMULARIO DE RESERVA CON SweetAlert2
+        document.querySelector(".form").addEventListener("submit", function (event) {
+            event.preventDefault(); // Evitar recarga de la página
+
+            let formData = new FormData(this);
+
+            fetch("/Reserva/CrearReserva", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json()) // Convertimos la respuesta en JSON
+            .then(data => {
+                if (data.success) {
+                    // 🔥 Mostrar alerta de confirmación con SweetAlert2
+                    Swal.fire({
+                        title: "¡Reserva Exitosa!",
+                        text: `${data.nombre}, le esperaremos a las ${data.horaReserva}.`,
+                        icon: "success",
+                        confirmButtonText: "Aceptar"
+                    }).then(() => {
+                        // 🔄 Recargar la página después de la alerta
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Error al realizar la reserva. Inténtelo de nuevo.",
+                        icon: "error",
+                        confirmButtonText: "Aceptar"
+                    });
                 }
+            })
+            .catch(error => {
+                console.error("Error en la solicitud:", error);
+                Swal.fire({
+                    title: "Error de conexión",
+                    text: "Inténtelo más tarde.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar"
+                });
             });
         });
 
-        // CONFIRMAR RESERVA
+        // ELIMINAR RESERVA CON SweetAlert2
+        document.querySelectorAll(".eliminar-reserva").forEach(button => {
+            button.addEventListener("click", function () {
+                let reservaId = this.dataset.id;
+                Swal.fire({
+                    title: "¿Estás seguro?",
+                    text: "Esta acción no se puede deshacer.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, eliminar",
+                    cancelButtonText: "Cancelar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/Reserva/EliminarReserva/${reservaId}`, { method: "POST" })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById(`reserva-${reservaId}`).remove();
+                                Swal.fire("Eliminado", "La reserva ha sido eliminada.", "success");
+                            } else {
+                                Swal.fire("Error", "No se pudo eliminar la reserva.", "error");
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        // CONFIRMAR RESERVA CON SweetAlert2
         document.querySelectorAll(".confirmar-reserva").forEach(button => {
             button.addEventListener("click", function () {
                 let reservaId = this.dataset.id;
@@ -153,8 +204,15 @@
                         estadoBadge.textContent = "CONFIRMADA";
                         estadoBadge.classList.remove("bg-warning");
                         estadoBadge.classList.add("bg-success");
+
+                        Swal.fire({
+                            title: "¡Reserva Confirmada!",
+                            text: "La reserva ha sido confirmada correctamente.",
+                            icon: "success",
+                            confirmButtonText: "Aceptar"
+                        });
                     } else {
-                        alert("Error al confirmar la reserva.");
+                        Swal.fire("Error", "No se pudo confirmar la reserva.", "error");
                     }
                 })
                 .catch(error => console.error("Error:", error));
@@ -162,7 +220,6 @@
         });
     });
 </script>
-
 <style>
     .bg-orange {
         background-color: orange; /* O cualquier otra variación de naranja */
