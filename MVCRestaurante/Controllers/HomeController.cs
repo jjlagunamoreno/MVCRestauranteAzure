@@ -4,15 +4,17 @@ using MVCRestaurante.Models;
 public class HomeController : Controller
 {
     private readonly IRepositoryRestaurante _repo;
+    private readonly RepositoryDestacados _repoDestacados;
 
-    public HomeController(IRepositoryRestaurante repo)
+    public HomeController(IRepositoryRestaurante repo, RepositoryDestacados repoDestacados)
     {
         _repo = repo;
+        _repoDestacados = repoDestacados;
     }
 
     public IActionResult Index()
     {
-        var destacados = _repo.GetDestacados();
+        var destacados = _repoDestacados.GetDestacados();
         var categorias = _repo.GetTodasLasCategorias();
         var platos = _repo.GetPlatos();
 

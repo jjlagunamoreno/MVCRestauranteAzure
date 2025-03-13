@@ -1,75 +1,12 @@
 ﻿@{
-    // *** TÍTULO DE LA VISTA
     ViewData["Title"] = "Inicio - MVCRestaurante";
+    var esAdmin = User.Identity.IsAuthenticated;
 }
 
-// *** MODELO PRINCIPAL (DICCIONARIO CATEGORÍA -> LISTA CARTA)
 @model Dictionary<string, List<Carta>>
-// *** IMPORT MODELS
 @using MVCRestaurante.Models
 
-@{
-    // *** OBTENEMOS LA LISTA DE DESTACADOS DESDE ViewBag
-    List<Destacado> destacados = ViewBag.Destacados;
-}
-
-<!-- *** SECCIÓN DE DESTACADOS (CAROUSEL) *** -->
-<section class="featured_section pt-3">
-    <div class="container">
-        @if (destacados != null && destacados.Count > 0)
-        {
-            <div id="carouselDestacados" class="carousel slide destacado-carousel" data-bs-ride="carousel" style="padding-top: 100px;">
-                <div class="carousel-indicators">
-                    @for (int i = 0; i < destacados.Count; i++)
-                    {
-                        <button type="button"
-                                data-bs-target="#carouselDestacados"
-                                data-bs-slide-to="@i"
-                                class="@(i == 0 ? "active" : "")"
-                                aria-label="Slide @(i + 1)">
-                        </button>
-                    }
-                </div>
-
-                <div class="carousel-inner">
-                    @for (int i = 0; i < destacados.Count; i++)
-                    {
-                        var item = destacados[i];
-                        <div class="carousel-item @(i == 0 ? "active" : "")" data-bs-interval="5000">
-                            <div class="img-container">
-                                <img src="~/images/destacados/@item.Imagen" class="d-block w-100 destacado-img" alt="@item.Titulo">
-                            </div>
-                            <div class="carousel-caption d-none d-md-block">
-                                <h5>@item.Titulo</h5>
-                                <p>@item.Descripcion</p>
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                <button class="carousel-control-prev"
-                        type="button"
-                        data-bs-target="#carouselDestacados"
-                        data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next"
-                        type="button"
-                        data-bs-target="#carouselDestacados"
-                        data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            </div>
-        }
-        else
-        {
-            <p class="text-center">No hay destacados disponibles en este momento.</p>
-        }
-    </div>
-</section>
-
+@Html.Partial("_Destacados")
 
 <!-- *** SECCIÓN DEL MENÚ *** -->
 <section class="food_section layout_padding-bottom" style="padding:75px 0px 0px 0px;">

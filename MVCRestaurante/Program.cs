@@ -19,6 +19,7 @@ builder.Services.AddScoped<IRepositoryRestaurante, RepositoryRestaurante>();
 builder.Services.AddScoped<RepositoryMenu>();
 builder.Services.AddScoped<RepositoryLogin>();
 builder.Services.AddScoped<RepositoryReservas>();
+builder.Services.AddScoped<RepositoryDestacados>();
 
 //INYECTAR SEGURIDAD EN LOGIN
 builder.Services.AddDistributedMemoryCache();

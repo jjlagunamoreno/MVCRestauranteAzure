@@ -1,0 +1,237 @@
+﻿@using MVCRestaurante.Models
+
+@{
+    var esAdmin = User.Identity.IsAuthenticated;
+}
+
+@{
+    List<Destacado> destacados = ViewBag.Destacados;
+}
+
+<section class="featured_section pt-3">
+    <div class="container" style="padding-top:75px;">
+
+        @if (destacados != null && destacados.Count > 0)
+        {
+            <div id="carouselDestacados" class="carousel slide destacado-carousel" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    @for (int i = 0; i < destacados.Count; i++)
+                    {
+                        <button type="button" data-bs-target="#carouselDestacados"
+                                data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"
+                                aria-label="Slide @(i + 1)">
+                        </button>
+                    }
+                </div>
+
+                <div class="carousel-inner">
+                    @for (int i = 0; i < destacados.Count; i++)
+                    {
+                        var item = destacados[i];
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="img-container">
+                                <img src="~/images/destacados/@item.Imagen" class="d-block w-100 destacado-img" alt="@item.Titulo">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>@item.Titulo</h5>
+                                <p>@item.Descripcion</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestacados" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselDestacados" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            @if (esAdmin)
+            {
+                <div class="mt-4">
+                    <div class="text-center mb-3">
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearDestacadoModal">
+                            ➕ Crear Destacado
+                        </button>
+                    </div>
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Título</th>
+                                <th>Descripción</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Final</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in destacados)
+                            {
+                                <tr>
+                                    <td>@item.Titulo</td>
+                                    <td>@item.Descripcion</td>
+                                    <td>@item.FechaInicio.ToShortDateString()</td>
+                                    <td>@item.FechaFinal.ToShortDateString()</td>
+                                    <td>
+                                        <button class="btn btn-warning btn-sm editar-destacado"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editarDestacadoModal"
+                                                data-id="@item.Id"
+                                                data-titulo="@item.Titulo"
+                                                data-descripcion="@item.Descripcion"
+                                                data-fechainicio="@item.FechaInicio.ToString("yyyy-MM-dd")"
+                                                data-fechafinal="@item.FechaFinal.ToString("yyyy-MM-dd")">
+                                            ✏ Editar
+                                        </button>
+                                        <button class="btn btn-danger btn-sm eliminar-destacado" data-id="@item.Id">
+                                            🗑 Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center">No hay destacados disponibles en este momento.</p>
+        }
+    </div>
+</section>
+
+
+
+<!-- MODAL PARA CREAR DESTACADO -->
+<div class="modal fade" id="crearDestacadoModal" tabindex="-1" aria-labelledby="crearDestacadoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crear Destacado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCrearDestacado">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" id="tituloCrear" name="Titulo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcionCrear" name="Descripcion" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagen</label>
+                        <input type="file" class="form-control" id="imagenCrear" name="Imagen" accept="image/*" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Inicio</label>
+                        <input type="date" class="form-control" id="fechaInicioCrear" name="FechaInicio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Final</label>
+                        <input type="date" class="form-control" id="fechaFinalCrear" name="FechaFinal" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Crear</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA EDITAR DESTACADO -->
+<div class="modal fade" id="editarDestacadoModal" tabindex="-1" aria-labelledby="editarDestacadoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Destacado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarDestacado">
+                    <input type="hidden" id="idEditar" name="Id">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" id="tituloEditar" name="Titulo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcionEditar" name="Descripcion" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagen (Opcional)</label>
+                        <input type="file" class="form-control" id="imagenEditar" name="Imagen" accept="image/*">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Inicio</label>
+                        <input type="date" class="form-control" id="fechaInicioEditar" name="FechaInicio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Final</label>
+                        <input type="date" class="form-control" id="fechaFinalEditar" name="FechaFinal" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">Actualizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("formCrearDestacado").addEventListener("submit", function (event) {
+        event.preventDefault();
+        let formData = new FormData(this);
+
+        fetch("/Destacados/Crear", {
+            method: "POST",
+            body: formData
+        }).then(() => location.reload());
+    });
+
+    // Cargar los datos en el modal de edición
+    document.querySelectorAll(".editar-destacado").forEach(button => {
+        button.addEventListener("click", function () {
+            document.getElementById("idEditar").value = this.dataset.id;
+            document.getElementById("tituloEditar").value = this.dataset.titulo;
+            document.getElementById("descripcionEditar").value = this.dataset.descripcion;
+            document.getElementById("fechaInicioEditar").value = this.dataset.fechainicio;
+            document.getElementById("fechaFinalEditar").value = this.dataset.fechafinal;
+        });
+    });
+
+    // Enviar formulario de edición
+    document.getElementById("formEditarDestacado").addEventListener("submit", function (event) {
+        event.preventDefault();
+        let formData = new FormData(this);
+
+        let imagenInput = document.getElementById("imagenEditar");
+        if (imagenInput.files.length === 0) {
+            formData.delete("Imagen"); // No enviar imagen si no se seleccionó
+        }
+
+        fetch("/Destacados/Editar", {
+            method: "POST",
+            body: formData
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert("Error al actualizar el destacado.");
+            }
+        });
+    });
+
+
+    document.querySelectorAll(".eliminar-destacado").forEach(button => {
+        button.addEventListener("click", function () {
+            let id = this.dataset.id;
+            if (confirm("¿Deseas eliminar este destacado?")) {
+                fetch(`/Destacados/Eliminar/${id}`, { method: "POST" })
+                    .then(() => location.reload());
+            }
+        });
+    });
+</script>
