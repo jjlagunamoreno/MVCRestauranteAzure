@@ -17,10 +17,27 @@ namespace MVCRestaurante.Repositories
         {
             return _context.Cartas.ToList();
         }
-
-        public void CrearPlato(Carta plato)
+        public void CrearPlato(Carta plato, IFormFile Imagen)
         {
             plato.Activo = "SI"; // Siempre se crean activos
+
+            if (Imagen != null && Imagen.Length > 0)
+            {
+                string fileName = Path.GetFileName(Imagen.FileName);
+                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/platos", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    Imagen.CopyTo(stream);
+                }
+
+                plato.Imagen = fileName;
+            }
+            else
+            {
+                plato.Imagen = "default.jpg"; // Imagen por defecto si no se sube ninguna
+            }
+
             _context.Cartas.Add(plato);
             _context.SaveChanges();
         }

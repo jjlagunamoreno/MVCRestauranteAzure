@@ -21,9 +21,9 @@ namespace MVCRestaurante.Controllers
         }
 
         [HttpPost]
-        public IActionResult Crear(Carta plato)
+        public IActionResult Crear(Carta plato, IFormFile Imagen)
         {
-            _repo.CrearPlato(plato);
+            _repo.CrearPlato(plato, Imagen);
             return RedirectToAction("Index");
         }
 
