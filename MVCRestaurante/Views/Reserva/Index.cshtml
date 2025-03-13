@@ -6,31 +6,30 @@
 }
 
 <div class="container mt-5" style="padding: 100px 0 100px 0;">
-    <div class="row">
-        <!-- Formulario de Reserva -->
-        <div class="col-md-6">
+    <div class="row justify-content-center @(esAdmin ? "" : "justify-content-md-center")">
+        <div class="@(esAdmin ? "col-md-6" : "col-md-8")">
             <div class="borderbox p-4 shadow-lg rounded">
                 <h2 class="title title--small text-center"><em>Haz tu RESERVA</em></h2>
                 <p class="text-muted text-center">Selecciona el Grosso que más se ajuste a ti.</p>
 
                 <form class="form" asp-action="CrearReserva" asp-controller="Reserva" method="post">
                     <div class="mb-3">
-                        <label for="nombre" class="form-label"><i class="fas fa-user"></i> Tu Nombre</label>
+                        <label class="form-label"><i class="fas fa-user"></i> Tu Nombre</label>
                         <input type="text" asp-for="Nombre" class="form-control" placeholder="Escribe tu nombre" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="telefono" class="form-label"><i class="fas fa-phone"></i> Tu Teléfono</label>
-                        <input type="tel" asp-for="Telefono" class="form-control" placeholder="Escribe tu teléfono" required>
+                        <label class="form-label"><i class="fas fa-phone"></i> Tu Teléfono</label>
+                        <input type="number" asp-for="Telefono" class="form-control" placeholder="Escribe tu teléfono" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="fechaReserva" class="form-label"><i class="fas fa-calendar-alt"></i> Fecha</label>
+                        <label class="form-label"><i class="fas fa-calendar-alt"></i> Fecha</label>
                         <input type="date" asp-for="FechaReserva" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="horaReserva" class="form-label"><i class="fas fa-clock"></i> Hora</label>
+                        <label class="form-label"><i class="fas fa-clock"></i> Hora</label>
                         <select asp-for="HoraReserva" class="form-select" required>
                             <option disabled selected>Selecciona una hora</option>
                             @for (int hora = 13; hora <= 23; hora++)
@@ -42,7 +41,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="personas" class="form-label"><i class="fas fa-users"></i> Número de Personas</label>
+                        <label class="form-label"><i class="fas fa-users"></i> Número de Personas</label>
                         <select asp-for="Personas" class="form-select" required>
                             <option disabled selected>Selecciona</option>
                             @for (int i = 1; i <= 9; i++)
@@ -63,8 +62,8 @@
         @if (esAdmin)
         {
             <div class="col-md-6">
-                <div class="borderbox p-4 shadow-lg rounded">
-                    <h3 class="text-center text-primary"><i class="fas fa-list"></i> Reservas Actuales</h3>
+                <div class="">
+                    <h3 class="text-center"><i class="fas fa-list"></i> Reservas Actuales</h3>
 
                     <table class="table table-hover mt-3">
                         <thead class="table-dark">
@@ -76,6 +75,7 @@
                                 <th>Hora</th>
                                 <th>Personas</th>
                                 <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -94,6 +94,21 @@
                                             <span class="badge bg-@(reserva.Estado == "Pendiente" ? "warning" : "success")">
                                                 @reserva.Estado
                                             </span>
+                                        </td>
+                                        <td>
+                                            <form asp-action="EliminarReserva" asp-controller="Reserva" method="post" style="display:inline;">
+                                                <input type="hidden" name="id" value="@reserva.IdReserva" />
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+
+                                            <form asp-action="ConfirmarReserva" asp-controller="Reserva" method="post" style="display:inline;">
+                                                <input type="hidden" name="id" value="@reserva.IdReserva" />
+                                                <button type="submit" class="btn btn-success btn-sm" title="Confirmar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 }

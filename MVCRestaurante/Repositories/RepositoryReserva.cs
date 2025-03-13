@@ -30,7 +30,26 @@ namespace MVCRestaurante.Repositories
             _context.SaveChanges();
         }
 
-        // Verificar si una fecha y hora ya tiene 4 reservas
+        public void EliminarReserva(int id)
+        {
+            var reserva = _context.Reservas.Find(id);
+            if (reserva != null)
+            {
+                _context.Reservas.Remove(reserva);
+                _context.SaveChanges();
+            }
+        }
+
+        public void ConfirmarReserva(int id)
+        {
+            var reserva = _context.Reservas.Find(id);
+            if (reserva != null)
+            {
+                reserva.Estado = "Confirmada";
+                _context.SaveChanges();
+            }
+        }
+
         public bool EsHorarioDisponible(DateTime fecha, TimeSpan hora)
         {
             return _context.Reservas.Count(r => r.FechaReserva == fecha && r.HoraReserva == hora) < 4;

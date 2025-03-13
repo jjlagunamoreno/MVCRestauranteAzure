@@ -37,5 +37,19 @@ namespace MVCRestaurante.Controllers
             _repo.CrearReserva(reserva);
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public IActionResult EliminarReserva(int id)
+        {
+            _repo.EliminarReserva(id);
+            return RedirectToAction("Admin");
+        }
+
+        [HttpPost]
+        public IActionResult ConfirmarReserva(int id)
+        {
+            _repo.ConfirmarReserva(id);
+            return RedirectToAction("Admin");
+        }
     }
 }
