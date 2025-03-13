@@ -39,14 +39,14 @@
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                        <button class="btn btn-warning btn-sm editar-plato"
+                                data-bs-toggle="modal"
                                 data-bs-target="#modalEditarPlato"
                                 data-id="@plato.IdPlato"
                                 data-nombre="@plato.Nombre"
                                 data-descripcion="@plato.Descripcion"
                                 data-precio="@plato.Precio"
-                                data-tipo="@plato.TipoPlato"
-                                data-estado="@plato.Activo">
+                                data-tipo="@plato.TipoPlato">
                             ✏ Editar
                         </button>
                         <button class="btn btn-danger btn-sm cambiar-estado" data-id="@plato.IdPlato">
@@ -60,3 +60,48 @@
 </div>
 
 @Html.Partial("_ModalPlato")
+
+<script>
+        //CARGAMOS LA INFORMACIÓN DEL PLATO EN EL MODAL
+        document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".editar-plato").forEach(button => {
+            button.addEventListener("click", function () {
+                document.getElementById("idEditar").value = this.dataset.id;
+                document.getElementById("nombreEditar").value = this.dataset.nombre;
+                document.getElementById("descripcionEditar").value = this.dataset.descripcion;
+                document.getElementById("precioEditar").value = this.dataset.precio;
+
+                // Seleccionar el tipo de plato correctamente
+                let tipoPlatoSelect = document.getElementById("tipoEditar");
+                for (let option of tipoPlatoSelect.options) {
+                    if (option.value === this.dataset.tipo) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            });
+        });
+    });
+    // EDITAMOS EL PLATO
+        document.getElementById("formEditarPlato").addEventListener("submit", function (event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+
+            let imagenInput = document.getElementById("imagenEditar");
+            if (imagenInput.files.length === 0) {
+                  formData.delete("Imagen");
+                }
+
+            fetch("/AdminCarta/Editar", {
+                        method: "POST",
+                        body: formData
+                    }).then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert("Error al actualizar el plato.");
+                     }
+                 });
+            });
+
+</script>

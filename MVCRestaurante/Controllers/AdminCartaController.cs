@@ -28,9 +28,9 @@ namespace MVCRestaurante.Controllers
         }
 
         [HttpPost]
-        public IActionResult Editar(Carta plato)
+        public IActionResult Editar(Carta plato, IFormFile Imagen)
         {
-            _repo.EditarPlato(plato);
+            _repo.EditarPlato(plato, Imagen);
             return RedirectToAction("Index");
         }
 

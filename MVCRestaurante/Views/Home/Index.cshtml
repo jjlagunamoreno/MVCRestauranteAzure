@@ -12,19 +12,18 @@
 <section class="food_section layout_padding-bottom" style="padding:75px 0px 0px 0px;">
     <div class="container">
         <div class="heading_container heading_center">
-            <h2>Nuestra Carta</h2>
-        </div>
-
-        <!-- Botón de Configuración para el Admin -->
-        @if (esAdmin)
-        {
-            <div class="text-center mt-5">
-                <a href="@Url.Action("Index", "AdminCarta")" class="btn btn-dark">
-                    <i class="fas fa-cogs"></i> Gestionar Carta
-                </a>
+            <div class="flex-container">
+                <h2 class="mw-50">Nuestra Carta</h2>
+                @if (esAdmin)
+                {
+                    <span class="mw-50">
+                        <a href="@Url.Action("Index", "AdminCarta")" class="btn btn-dark">
+                            <i class="fas fa-cogs"></i>
+                        </a>
+                    </span>
+                }
             </div>
-        }
-
+        </div>
         <ul class="filters_menu">
             <li class="active" data-filter="*">Todos</li>
             @foreach (var categoria in Model.Keys)
@@ -93,3 +92,15 @@
         </section>
     </div>
 </section>
+
+<style>
+    .flex-container {
+        display: flex; /* Activa Flexbox */
+        align-items: center; /* Alinea verticalmente al centro */
+        justify-content: center; /* Alinea horizontalmente al centro (opcional) */
+    }
+
+        .flex-container h2 {
+            margin-right: 10px; /* Espacio entre el texto y el botón (ajusta según necesites) */
+        }
+</style>

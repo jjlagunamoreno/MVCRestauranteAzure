@@ -41,8 +41,7 @@ namespace MVCRestaurante.Repositories
             _context.Cartas.Add(plato);
             _context.SaveChanges();
         }
-
-        public void EditarPlato(Carta plato)
+        public void EditarPlato(Carta plato, IFormFile Imagen)
         {
             var existente = _context.Cartas.Find(plato.IdPlato);
             if (existente != null)
@@ -51,6 +50,28 @@ namespace MVCRestaurante.Repositories
                 existente.Descripcion = plato.Descripcion;
                 existente.Precio = plato.Precio;
                 existente.TipoPlato = plato.TipoPlato;
+
+                // 📌 Si se sube una nueva imagen, actualizarla
+                if (Imagen != null && Imagen.Length > 0)
+                {
+                    string fileName = Path.GetFileName(Imagen.FileName);
+                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/platos", fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        Imagen.CopyTo(stream);
+                    }
+
+                    // 📌 Eliminar la imagen anterior solo si es diferente
+                    string oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/platos", existente.Imagen);
+                    if (System.IO.File.Exists(oldImagePath) && existente.Imagen != "default.jpg")
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+
+                    existente.Imagen = fileName;
+                }
+
                 _context.SaveChanges();
             }
         }
