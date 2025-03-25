@@ -5,21 +5,21 @@ using System.IO;
 
 public class DestacadosController : Controller
 {
-    private readonly RepositoryDestacados _repo;
+    private readonly RepositoryRestaurante _repo;
 
-    public DestacadosController(RepositoryDestacados repo)
+    public DestacadosController(RepositoryRestaurante repo)
     {
         _repo = repo;
     }
 
-    // 📌 Mostrar todos los destacados
+    // Mostrar todos los destacados
     public IActionResult Index()
     {
         var destacados = _repo.GetDestacados();
         return View(destacados);
     }
 
-    // 📌 Crear un nuevo destacado con el nombre original del archivo
+    // Crear un nuevo destacado con el nombre original del archivo
     [HttpPost]
     public IActionResult Crear(IFormFile Imagen, string Titulo, string Descripcion, string FechaInicio, string FechaFinal)
     {
@@ -56,7 +56,7 @@ public class DestacadosController : Controller
         return RedirectToAction("Index");
     }
 
-    // 📌 Editar un destacado existente y actualizar la imagen si hay una nueva
+    // Editar un destacado existente y actualizar la imagen si hay una nueva
     [HttpPost]
     public IActionResult Editar(int Id, string Titulo, string Descripcion, string FechaInicio, string FechaFinal, IFormFile Imagen)
     {
@@ -97,11 +97,11 @@ public class DestacadosController : Controller
 
         _repo.EditarDestacado(destacado);
 
-        // 🔥 Enviar respuesta JSON en lugar de redirigir
+        // Enviar respuesta JSON en lugar de redirigir
         return Json(new { success = true, message = "Destacado editado correctamente." });
     }
 
-    // 📌 Eliminar un destacado
+    // Eliminar un destacado
     [HttpPost]
     public IActionResult Eliminar(int id)
     {

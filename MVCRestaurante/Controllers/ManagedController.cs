@@ -3,15 +3,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using MVCRestaurante.Models;
-using MVCRestaurante.Repositories;
 
 namespace MVCRestaurante.Controllers
 {
     public class ManagedController : Controller
     {
-        private readonly RepositoryLogin repo;
+        private readonly RepositoryRestaurante repo;
 
-        public ManagedController(RepositoryLogin repo)
+        public ManagedController(RepositoryRestaurante repo)
         {
             this.repo = repo;
         }

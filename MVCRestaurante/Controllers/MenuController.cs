@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MVCRestaurante.Filters;
 using MVCRestaurante.Models;
-using MVCRestaurante.Repositories;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,11 +9,11 @@ using Microsoft.AspNetCore.Hosting;
 
 public class MenuController : Controller
 {
-    private readonly RepositoryMenu _repository;
+    private readonly RepositoryRestaurante _repository;
     private readonly string _rutaArchivos = "wwwroot/images/menu/";
     private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public MenuController(RepositoryMenu repository, IWebHostEnvironment webHostEnvironment)
+    public MenuController(RepositoryRestaurante repository, IWebHostEnvironment webHostEnvironment)
     {
         _repository = repository;
         _webHostEnvironment = webHostEnvironment;

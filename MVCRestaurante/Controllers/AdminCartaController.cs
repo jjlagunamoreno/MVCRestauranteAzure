@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MVCRestaurante.Models;
-using MVCRestaurante.Repositories;
 using System.Collections.Generic;
 
 namespace MVCRestaurante.Controllers
 {
     public class AdminCartaController : Controller
     {
-        private readonly RepositoryCarta _repo;
+        private readonly RepositoryRestaurante _repo;
 
-        public AdminCartaController(RepositoryCarta repo)
+        public AdminCartaController(RepositoryRestaurante repo)
         {
             _repo = repo;
         }

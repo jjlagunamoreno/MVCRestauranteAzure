@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using MVCRestaurante.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,12 +14,8 @@ builder.Services.AddDbContext<RestauranteContext>(options =>
 builder.Services.AddMemoryCache();
 
 // INYECTAR REPOSITORIOS
-builder.Services.AddScoped<IRepositoryRestaurante, RepositoryRestaurante>();
-builder.Services.AddScoped<RepositoryMenu>();
-builder.Services.AddScoped<RepositoryLogin>();
-builder.Services.AddScoped<RepositoryReservas>();
-builder.Services.AddScoped<RepositoryDestacados>();
-builder.Services.AddScoped<RepositoryCarta>();
+builder.Services.AddTransient<IRepositoryRestaurante, RepositoryRestaurante>();
+builder.Services.AddTransient<RepositoryRestaurante>();
 
 //INYECTAR SEGURIDAD EN LOGIN
 builder.Services.AddDistributedMemoryCache();

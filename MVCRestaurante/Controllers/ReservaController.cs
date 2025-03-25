@@ -5,15 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MVCRestaurante.Filters;
 using MVCRestaurante.Models;
-using MVCRestaurante.Repositories;
 
 namespace MVCRestaurante.Controllers
 {
     public class ReservaController : Controller
     {
-        private readonly RepositoryReservas _repo;
+        private readonly RepositoryRestaurante _repo;
 
-        public ReservaController(RepositoryReservas repo)
+        public ReservaController(RepositoryRestaurante repo)
         {
             _repo = repo;
         }
@@ -55,7 +54,7 @@ namespace MVCRestaurante.Controllers
 
             _repo.CrearReserva(reserva);
 
-            // 🔥 Retornar JSON con el nombre y la hora de la reserva para la alerta
+            // Retornar JSON con el nombre y la hora de la reserva para la alerta
             return Json(new { success = true, nombre = reserva.Nombre, horaReserva = reserva.HoraReserva });
         }
 
