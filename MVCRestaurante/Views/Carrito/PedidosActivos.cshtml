@@ -1,0 +1,152 @@
+﻿@model List<NugetApiModelsRestauranteJJLM.VwPedidoActivo>
+
+@{
+    var fechaActual = DateTime.Now.Date;
+}
+
+<div class="container" style="padding-top: 150px; padding-bottom: 150px;">
+    <h1 class="mb-4 text-center">📌 Comandas</h1>
+
+    @if (!Model.Any())
+    {
+        <p class="text-center">No hay pedidos activos.</p>
+    }
+    else
+    {
+        @foreach (var group in Model.GroupBy(p => p.FechaPedido.Date).OrderByDescending(g => g.Key))
+        {
+            <div class="mt-4 mb-2">
+                <h4 style="font-weight: bold;">
+                    @group.Key.ToShortDateString()
+                </h4>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle pedidos-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Número Pedido</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Hora</th>
+                            <th>Total</th>
+                            <th></th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pedido in group.OrderBy(p => p.Estado == "ENTREGADO").ThenByDescending(p => p.HoraPedido))
+                        {
+                            <tr id="pedido-@pedido.IdPedido" style="@(pedido.Estado == "ENTREGADO" ? "background-color: #d4edda;" : "")">
+                                <td>
+                                    <strong>@pedido.IdPedido</strong>
+                                </td>
+
+                                <td>
+                                    @pedido.Nombre
+                                    <span style="margin-left: 8px;">
+                                        (tel: <strong>@pedido.Telefono</strong>)
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @if (pedido.TipoPedido == "DOMICILIO")
+                                    {
+                                        <span class="badge bg-info text-dark">@pedido.TipoPedido</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success text-dark">@pedido.TipoPedido</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="badge @(pedido.Estado == "PENDIENTE" ? "bg-warning" : pedido.Estado == "CANCELADO" ? "bg-danger" : "bg-success")">
+                                        @pedido.Estado
+                                    </span>
+                                </td>
+
+                                <td>@pedido.HoraPedido.ToString(@"hh\:mm\:ss")</td>
+
+                                <td>€ @pedido.PrecioTotal</td>
+
+                                <td>
+                                    @if (pedido.FechaPedido.Date == fechaActual)
+                                    {
+                                        <input type="checkbox" class="completar-pedido" data-id="@pedido.IdPedido"
+                                        @(pedido.Estado == "ENTREGADO" ? "checked" : "") />
+                                        <button class="btn btn-danger btn-sm cancelar-pedido"
+                                                data-id="@pedido.IdPedido">
+                                            Cancelar
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted"></span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".completar-pedido").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                let pedidoId = this.dataset.id;
+                let completado = this.checked;
+
+                fetch(`/Carrito/MarcarPedidoComoCompletado?id=${pedidoId}&completado=${completado}`, {
+                    method: "POST"
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let row = document.getElementById(`pedido-${data.id}`);
+                        let estadoBadge = row.querySelector("td:nth-child(4) span");
+
+                        if (data.estado === "ENTREGADO") {
+                            row.style.backgroundColor = "#d4edda";
+                            estadoBadge.textContent = "ENTREGADO";
+                            estadoBadge.className = "badge bg-success";
+                        } else {
+                            row.style.backgroundColor = "";
+                            estadoBadge.textContent = "PENDIENTE";
+                            estadoBadge.className = "badge bg-warning";
+                        }
+                    } else {
+                        console.error("Error al actualizar el pedido");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+
+        document.querySelectorAll(".cancelar-pedido").forEach(button => {
+            button.addEventListener("click", function () {
+                let pedidoId = this.dataset.id;
+                if (confirm("¿Estás seguro de cancelar este pedido?")) {
+                    fetch(`/Carrito/CancelarPedido?id=${pedidoId}`, {
+                        method: "POST"
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Pedido cancelado con éxito.");
+                            location.reload();
+                        } else {
+                            alert("Error al cancelar el pedido.");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                }
+            });
+        });
+    });
+</script>

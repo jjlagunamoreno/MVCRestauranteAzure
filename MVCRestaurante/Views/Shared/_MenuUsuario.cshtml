@@ -1,0 +1,40 @@
+﻿@if (Context.User.Identity.IsAuthenticated)
+{
+    <div class="d-flex align-items-center">
+        <!-- Opción Pedidos con resaltado si está activa -->
+        <a asp-controller="Carrito" asp-action="PedidosActivos"
+           class="nav-link me-3 @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Carrito" && ViewContext.RouteData.Values["Action"]?.ToString() == "PedidosActivos" ? "active-pedidos" : "")">
+            <i class="fa-solid fa-clipboard-list fa-lg"></i> Pedidos
+        </a>
+
+        <!-- Nombre de usuario y Logout -->
+        <div class="d-flex align-items-center bg-dark rounded-pill px-3 py-1">
+            <span class="text-white me-2">@Context.User.Identity.Name</span>
+            <a asp-controller="Managed" asp-action="Logout" class="text-white">
+                <i class="fa-solid fa-right-from-bracket fa-lg"></i>
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Mostrar carrito si el usuario NO está autenticado -->
+    <a asp-controller="Carrito" asp-action="Index" class="order_online position-relative me-3">
+        <i class="fa fa-shopping-cart"></i> Pedido
+        <span id="pedidoCount" class="badge badge-pill position-absolute top-0 start-100 translate-middle pedido-badge">
+            0
+        </span>
+    </a>
+
+    <!-- Botón de inicio de sesión -->
+    <a asp-controller="Managed" asp-action="Login" class="user_link">
+        <i class="fa fa-user" aria-hidden="true"></i>
+    </a>
+}
+
+<style>
+    .active-pedidos {
+        color: #ffbe33 !important;
+        font-weight: bold;
+    }
+</style>

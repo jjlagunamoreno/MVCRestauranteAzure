@@ -1,0 +1,228 @@
+﻿@model NugetApiModelsRestauranteJJLM.Reserva
+@using MVCRestaurante.Filters
+
+@{
+    var esAdmin = User.Identity.IsAuthenticated;
+}
+
+<div class="container mt-5" style="padding: 100px 0 100px 0;">
+    <div class="row justify-content-center @(esAdmin ? "" : "justify-content-md-center")">
+        <div class="@(esAdmin ? "col-md-6" : "col-md-8")">
+            <div class="borderbox p-4 shadow-lg rounded">
+                <h2 class="title title--small text-center">Haz tu Reserva</h2>
+
+                <form class="form" asp-action="CrearReserva" asp-controller="Reserva" method="post">
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-user"></i> Tu Nombre</label>
+                        <input type="text" asp-for="Nombre" class="form-control" placeholder="Escribe tu nombre" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-phone"></i> Tu Teléfono</label>
+                        <input type="number" asp-for="Telefono" class="form-control" placeholder="Escribe tu teléfono" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-calendar-alt"></i> Fecha</label>
+                        <input type="date" id="fechaReserva" asp-for="FechaReserva" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-clock"></i> Hora</label>
+                        <select id="horaReserva" asp-for="HoraReserva" class="form-select" required>
+                            <option disabled selected>Selecciona una hora</option>
+                            @if (ViewBag.HorariosDisponibles != null)
+                            {
+                                foreach (var hora in ViewBag.HorariosDisponibles)
+                                {
+                                    <option value="@hora">@hora</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-users"></i> Número de Personas</label>
+                        <select asp-for="Personas" class="form-select" required>
+                            <option disabled selected>Selecciona</option>
+                            @for (int i = 1; i <= 9; i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-calendar-check"></i> Reservar
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabla de Reservas (Visible solo para Administradores) -->
+        @if (esAdmin)
+        {
+            <div class="col-md-6">
+                <div class="">
+                    <h3 class="text-center"><i class="fas fa-list"></i> Reservas Actuales</h3>
+
+                    <table class="table table-hover mt-3">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Personas</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservasBody">
+                            @if (ViewBag.Reservas != null)
+                            {
+                                foreach (var reserva in ViewBag.Reservas as List<NugetApiModelsRestauranteJJLM.Reserva>)
+                                {
+                                    <tr id="reserva-@reserva.IdReserva">
+                                        <td>@reserva.IdReserva</td>
+                                        <td>@reserva.Nombre</td>
+                                        <td>@reserva.Telefono</td>
+                                        <td>@reserva.FechaReserva.ToShortDateString()</td>
+                                        <td>@reserva.HoraReserva</td>
+                                        <td>@reserva.Personas</td>
+                                        <td>
+                                            <span class="badge estado-badge @(reserva.Estado == "PENDIENTE" ? "bg-orange text-dark" : "bg-success")">
+                                                @reserva.Estado
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm eliminar-reserva" data-id="@reserva.IdReserva" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+
+                                            <button class="btn btn-success btn-sm confirmar-reserva" data-id="@reserva.IdReserva" title="Confirmar">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // MANEJO DEL FORMULARIO DE RESERVA CON SweetAlert2
+        document.querySelector(".form").addEventListener("submit", function (event) {
+            event.preventDefault(); // Evitar recarga de la página
+
+            let formData = new FormData(this);
+
+            fetch("/Reserva/CrearReserva", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json()) // Convertimos la respuesta en JSON
+            .then(data => {
+                if (data.success) {
+                    // 🔥 Mostrar alerta de confirmación con SweetAlert2
+                    Swal.fire({
+                        title: "¡Reserva Exitosa!",
+                        text: `${data.nombre}, le esperaremos a las ${data.horaReserva}.`,
+                        icon: "success",
+                        confirmButtonText: "Aceptar"
+                    }).then(() => {
+                        // 🔄 Recargar la página después de la alerta
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Error al realizar la reserva. Inténtelo de nuevo.",
+                        icon: "error",
+                        confirmButtonText: "Aceptar"
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Error en la solicitud:", error);
+                Swal.fire({
+                    title: "Error de conexión",
+                    text: "Inténtelo más tarde.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar"
+                });
+            });
+        });
+
+        // ELIMINAR RESERVA CON SweetAlert2
+        document.querySelectorAll(".eliminar-reserva").forEach(button => {
+            button.addEventListener("click", function () {
+                let reservaId = this.dataset.id;
+                Swal.fire({
+                    title: "¿Estás seguro?",
+                    text: "Esta acción no se puede deshacer.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, eliminar",
+                    cancelButtonText: "Cancelar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/Reserva/EliminarReserva/${reservaId}`, { method: "POST" })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById(`reserva-${reservaId}`).remove();
+                                Swal.fire("Eliminado", "La reserva ha sido eliminada.", "success");
+                            } else {
+                                Swal.fire("Error", "No se pudo eliminar la reserva.", "error");
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        // CONFIRMAR RESERVA CON SweetAlert2
+        document.querySelectorAll(".confirmar-reserva").forEach(button => {
+            button.addEventListener("click", function () {
+                let reservaId = this.dataset.id;
+                fetch(`/Reserva/ConfirmarReserva/${reservaId}`, {
+                    method: "POST"
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let estadoBadge = document.querySelector(`#reserva-${reservaId} .estado-badge`);
+                        estadoBadge.textContent = "CONFIRMADA";
+                        estadoBadge.classList.remove("bg-warning");
+                        estadoBadge.classList.add("bg-success");
+
+                        Swal.fire({
+                            title: "¡Reserva Confirmada!",
+                            text: "La reserva ha sido confirmada correctamente.",
+                            icon: "success",
+                            confirmButtonText: "Aceptar"
+                        });
+                    } else {
+                        Swal.fire("Error", "No se pudo confirmar la reserva.", "error");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+    });
+</script>
+<style>
+    .bg-orange {
+        background-color: orange; /* O cualquier otra variación de naranja */
+        color: white; /* Opcional: para que el texto se vea bien sobre el fondo naranja */
+    }
+</style>

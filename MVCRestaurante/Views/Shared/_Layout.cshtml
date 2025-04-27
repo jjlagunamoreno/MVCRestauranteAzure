@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title> MVCRestaurante</title>
+
+    <!-- Agregar Favicon -->
+    <link rel="icon" type="image/png" href="~/images/favicon.png" />
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/responsive.css" />
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+
+    <!-- Nice Select -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
+
+</head>
+<body class="sub_page">
+
+    <!-- HEADER -->
+    <header class="header_section fixed-top" style="background-color:black; ">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark custom_nav-container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <span>MVCRestaurante</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Menu" ? "active" : "")">
+                            <a class="nav-link" asp-controller="Menu" asp-action="Index">Menús</a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reserva" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
+                            <a class="nav-link" asp-controller="Reserva" asp-action="Index">Reservas</a>
+                        </li>
+                        <div class="user_option">
+                            <partial name="_MenuUsuario" />
+                        </div>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer_section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-col">
+                    <div class="footer_contact">
+                        <h4>
+                            Contacto
+                        </h4>
+                        <div class="contact_link_box">
+                            <a href="">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                <span>
+                                    Tajamar
+                                </span>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-phone" aria-hidden="true"></i>
+                                <span>
+                                    +34 123 456 789
+                                </span>
+                            </a>
+                            <a href="">
+                                <i class="fa fa-envelope" aria-hidden="true"></i>
+                                <span>
+                                    jaimejesus.laguna@tajamar365.com
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-col">
+                    <div class="footer_detail">
+                        <a href="" class="footer-logo">
+                            MVCRestaurante
+                        </a>
+                        <p>
+                            Síguenos en nuestras redes sociales!!
+                        </p>
+                        <div class="footer_social">
+                            <a href="https://facebook.com">
+                                <i class="fa-brands fa-facebook"></i>
+                            </a>
+                            <a href="https://twitter.com">
+                                <i class="fa-brands fa-twitter"></i>
+                            </a>
+                            <a href="https://linkedin.com">
+                                <i class="fa-brands fa-linkedin"></i>
+                            </a>
+                            <a href="https://instagram.com">
+                                <i class="fa-brands fa-instagram"></i>
+                            </a>
+                            <a href="https://pinterest.com">
+                                <i class="fa-brands fa-pinterest"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-col">
+                    <h4>
+                        Horario
+                    </h4>
+                    <p>
+                        Todos los días
+                    </p>
+                    <p>
+                        10.00 Am -10.00 Pm
+                    </p>
+                </div>
+            </div>
+            <div class="footer-info">
+                <p>
+                    &copy; <span id="displayYear"></span> All Rights Reserved By
+                    <a href="https://html.design/">JJ MASTER</a><br><br>
+                    &copy; <span id="displayYear"></span> Distributed By
+                    <a href="https://themewagon.com/" target="_blank">MVCRestaurante</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    @* Mis scripts *@
+    <script src="~/js/cart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            actualizarContador();
+
+            function actualizarContador() {
+                fetch(`/Carrito/ObtenerCantidad`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("pedidoCount").textContent = data.count;
+                    });
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            if ($.fn.niceSelect) {
+                $("select").niceSelect();
+            }
+            if ($.fn.owlCarousel) {
+                $(".owl-carousel").owlCarousel();
+            }
+        });
+    </script>
+
+
+    <!-- JavaScript -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/custom.js"></script>
+    <script src="https://unpkg.com/isotope-layout@3.0.4/dist/isotope.pkgd.min.js"></script>
+    <script src="~/js/menu-filter.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

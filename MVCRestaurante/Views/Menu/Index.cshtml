@@ -1,0 +1,102 @@
+﻿@model List<NugetApiModelsRestauranteJJLM.Menu>
+@using MVCRestaurante.Filters
+@{
+    var esAdmin = User.Identity.IsAuthenticated;
+}
+
+<div class="container mt-5" style="padding: 100px 0 100px 0;">
+    <h1 class="text-center mb-4">🍽 Menús</h1>
+
+    @if (esAdmin)
+    {
+        <div class="d-flex justify-content-center mb-4">
+            <a href="@Url.Action("Crear", "Menu")" class="btn btn-custom">
+                ➕ Crear Nuevo Menú
+            </a>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        @foreach (var menu in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card menu-card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-center fw-bold">@menu.NombreMenu</h5>
+                        <div class="d-flex justify-content-center my-3">
+                            <a href="~/images/menu/@menu.PdfRuta" target="_blank" class="btn btn-outline-dark">
+                                📄 Ver Menú
+                            </a>
+                        </div>
+
+                        @if (esAdmin)
+                        {
+                            <div class="d-flex justify-content-between">
+                                <a href="@Url.Action("Editar", "Menu", new { id = menu.IdMenu })" class="btn btn-warning btn-sm">
+                                    ✏ Editar
+                                </a>
+                                <button class="btn btn-danger btn-sm eliminar-menu" data-id="@menu.IdMenu">
+                                    🗑 Eliminar
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".eliminar-menu").forEach(button => {
+            button.addEventListener("click", function () {
+                let menuId = this.dataset.id;
+                if (confirm("¿Seguro que deseas eliminar este menú?")) {
+                    fetch(`/Menu/Eliminar/${menuId}`, {
+                        method: "POST"
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Menú eliminado correctamente.");
+                            location.reload();
+                        } else {
+                            alert("Error al eliminar el menú.");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .btn-custom {
+        background-color: #ffbe33;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 12px 18px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-custom:hover {
+            background-color: #e0a800;
+        }
+
+    .menu-card {
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        padding: 15px;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .menu-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        }
+</style>
