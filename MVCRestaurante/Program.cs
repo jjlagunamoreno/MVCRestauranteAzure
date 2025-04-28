@@ -1,5 +1,7 @@
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using MVCRestaurante.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,22 @@ builder.Services
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// AGREGAMOS EL SERVICIO DE NUESTRA API
+builder.Services.AddHttpClient<ServiceApiRestaurante>(client =>
+{
+    client.BaseAddress = new Uri("https://apirestaurante.azurewebsites.net/");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+
+// AGREGAR SERVICIO DE AZURE SMS
+builder.Services.AddSingleton<ServiceAzureSms>(provider =>
+{
+    var connectionString = "endpoint=https://servicesmsrestaurantejjlm.europe.communication.azure.com/;accesskey=6BUv5vKbWFx9gjlovZ9zmgatn1XAVp3WL1WdMgb6zJsHCl3MXfT2JQQJ99BDACULyCpfWOEbAAAAAZCS5kWd";
+    var fromPhoneNumber = ""; // PON EL NÚMERO QUE TE HAYA DADO AZURE AQUÍ O VACÍO PARA QUE ESTÉ EN MODO PRUEBAS
+    return new ServiceAzureSms(connectionString, fromPhoneNumber);
+});
+
 
 // AGREGAR CONTROLADORES CON VISTAS
 builder.Services

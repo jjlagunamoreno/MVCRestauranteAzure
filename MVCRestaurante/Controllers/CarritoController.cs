@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using MVCRestaurante.Filters;
+using MVCRestaurante.Services;
 
 
 public class CarritoController : Controller
@@ -21,11 +22,14 @@ public class CarritoController : Controller
     // *** CLAVE DE SESIÓN PARA IDENTIFICAR EL CARRITO EN LA CACHE ***
     private const string CarritoSessionKey = "Carrito";
 
+    private readonly ServiceAzureSms _smsService;
+
     // *** CONSTRUCTOR CON INYECCIÓN DE DEPENDENCIAS (DB CONTEXT Y CACHE) ***
-    public CarritoController(RestauranteContext context, IMemoryCache cache)
+    public CarritoController(RestauranteContext context, IMemoryCache cache, ServiceAzureSms smsService)
     {
         _context = context;
         _cache = cache;
+        _smsService = smsService;
     }
     
     [HttpPost]
@@ -117,7 +121,7 @@ public class CarritoController : Controller
     // RECIBE LOS DATOS DEL PEDIDO (TELÉFONO, NOMBRE, TIPO, DIRECCIÓN)
     // ***********************************************************************
     [HttpPost]
-    public IActionResult ConfirmarPedido(string telefono, string nombre, string tipoPedido, string direccion)
+    public async Task<IActionResult> ConfirmarPedido(string telefono, string nombre, string tipoPedido, string direccion)
     {
         // *** OBTENEMOS EL CARRITO DESDE LA CACHE ***
         var carrito = ObtenerCarrito();
@@ -126,6 +130,8 @@ public class CarritoController : Controller
             TempData["Error"] = "El carrito está vacío.";
             return RedirectToAction("Index");
         }
+
+        int idPedido = 0;
 
         // *** INICIAMOS UNA TRANSACCIÓN PARA ASEGURAR LA INTEGRIDAD DE LOS DATOS ***
         using (var transaction = _context.Database.BeginTransaction())
@@ -156,16 +162,14 @@ public class CarritoController : Controller
                     "EXEC sp_RealizarPedido @Telefono, @Nombre, @Direccion, @TipoPedido, @DetallesPedido, @IdPedido OUTPUT",
                     new SqlParameter("@Telefono", telefono),
                     new SqlParameter("@Nombre", nombre),
-                    // *** SI EL TIPO DE PEDIDO ES DOMICILIO, PASAMOS LA DIRECCIÓN; CASO CONTRARIO, PASAMOS NULL ***
                     new SqlParameter("@Direccion", tipoPedido == "DOMICILIO" ? direccion : (object)DBNull.Value),
                     new SqlParameter("@TipoPedido", tipoPedido),
-                    // *** PASAMOS EL DATATABLE CON LOS DETALLES DEL PEDIDO, CON TYPE NAME DEFINIDO ***
                     new SqlParameter("@DetallesPedido", detallesPedido) { TypeName = "dbo.DetallePedidoType" },
                     idPedidoParam
                 );
 
                 // *** OBTENEMOS EL ID DEL PEDIDO REGISTRADO DESDE EL PARAMETRO DE SALIDA ***
-                int idPedido = (int)idPedidoParam.Value;
+                idPedido = (int)idPedidoParam.Value;
 
                 // *** CONFIRMAMOS LA TRANSACCIÓN ***
                 transaction.Commit();
@@ -173,20 +177,37 @@ public class CarritoController : Controller
                 // *** VACIAMOS EL CARRITO DESPUÉS DE CONFIRMAR EL PEDIDO ***
                 carrito.Clear();
                 _cache.Set(CarritoSessionKey, carrito);
-
-                // *** REDIRIGIMOS A LA VISTA DE PEDIDO REALIZADO, PASANDO EL ID DEL PEDIDO ***
-                return RedirectToAction("PedidoRealizado", new { id = idPedido });
             }
             catch (Exception ex)
             {
                 // *** EN CASO DE ERROR, REVERTIMOS LA TRANSACCIÓN Y MOSTRAMOS UN MENSAJE DE ERROR ***
-                transaction.Rollback();
+                try { transaction.Rollback(); } catch { /* ignorar si ya está cerrada */ }
+
                 Console.WriteLine("ERROR AL REGISTRAR EL PEDIDO: " + ex.Message);
                 TempData["Error"] = "Hubo un problema al confirmar el pedido.";
                 return RedirectToAction("Index");
             }
         }
+
+        // ***********************************************************************
+        // *** ENVÍO DEL SMS AL CLIENTE TRAS CONFIRMAR EL PEDIDO (FUERA DEL TRY-CATCH) ***
+        // ***********************************************************************
+        try
+        {
+            string mensaje = $"🍽️ ¡Gracias {nombre} por tu pedido #{idPedido}! Estamos preparando tu comida. Restaurante JJLM.";
+            await _smsService.SendSmsAsync($"+34{telefono}", mensaje);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("ERROR AL ENVIAR SMS: " + ex.Message);
+            // No bloqueamos la redirección aunque falle el SMS
+        }
+
+        // *** REDIRIGIMOS A LA VISTA DE PEDIDO REALIZADO, PASANDO EL ID DEL PEDIDO ***
+        return RedirectToAction("PedidoRealizado", new { id = idPedido });
     }
+
+
 
     // ***********************************************************************
     // *** ACCIÓN PARA MOSTRAR LA VISTA DEL PEDIDO REALIZADO ***

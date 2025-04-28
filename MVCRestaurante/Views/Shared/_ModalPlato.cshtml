@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formCrearPlato" enctype="multipart/form-data">
+                <form id="formCrearPlato" enctype="multipart/form-data" method="post" action="/AdminCarta/Crear">
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombreCrear" name="Nombre" required>
@@ -50,24 +50,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditarPlato" enctype="multipart/form-data">
-                    <input type="hidden" id="idEditar" name="IdPlato">
-
+                <form id="formEditarPlato" enctype="multipart/form-data" method="post" action="/AdminCarta/Editar">
+                    <input type="hidden" id="idEditar" name="IdEditar" />
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombreEditar" name="Nombre" required>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
                         <textarea class="form-control" id="descripcionEditar" name="Descripcion" required></textarea>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Precio (€)</label>
                         <input type="number" class="form-control" id="precioEditar" name="Precio" step="0.01" required>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Tipo de Plato</label>
                         <select class="form-select" id="tipoEditar" name="TipoPlato" required>
@@ -78,12 +74,10 @@
                             <option value="SEGUNDO">Segundo</option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Imagen (Opcional)</label>
                         <input type="file" class="form-control" id="imagenEditar" name="Imagen" accept="image/*">
                     </div>
-
                     <button type="submit" class="btn btn-warning w-100">Actualizar</button>
                 </form>
             </div>
@@ -93,15 +87,22 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // CREAR PLATO
-        document.getElementById("formCrearPlato").addEventListener("submit", function (event) {
-            event.preventDefault();
-            let formData = new FormData(this);
+        // CARGAR DATOS EN EL MODAL DE EDITAR
+        document.querySelectorAll(".editar-plato").forEach(button => {
+            button.addEventListener("click", function () {
+                document.getElementById("idEditar").value = this.dataset.id;
+                document.getElementById("nombreEditar").value = this.dataset.nombre;
+                document.getElementById("descripcionEditar").value = this.dataset.descripcion;
+                document.getElementById("precioEditar").value = this.dataset.precio;
 
-            fetch("/AdminCarta/Crear", {
-                method: "POST",
-                body: formData
-            }).then(response => response.ok ? location.reload() : alert("Error al crear el plato."));
+                let tipoPlatoSelect = document.getElementById("tipoEditar");
+                for (let option of tipoPlatoSelect.options) {
+                    if (option.value === this.dataset.tipo.toUpperCase()) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            });
         });
 
         // CAMBIAR ESTADO DEL PLATO

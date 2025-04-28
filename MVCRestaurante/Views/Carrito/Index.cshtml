@@ -73,7 +73,9 @@
                 <div class="mb-3">
                     <label>Teléfono:</label>
                     <input type="text" name="telefono" class="form-control" required
-                           pattern="^[0-9]+$"
+                           pattern="^[0-9]{9}$"
+                           title="Introduce un número de 9 dígitos (sin +34)"
+                           maxlength="9"
                            onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
                 </div>
                 <div class="mb-3">
